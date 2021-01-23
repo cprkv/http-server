@@ -2,16 +2,29 @@
 #include <uvw.hpp>
 
 namespace gallery {
+  //---------------------------------------------------------------
+
+  struct ITcpWriter {
+    virtual void write(std::unique_ptr<char[]> data, size_t size) = 0;
+    virtual void done()                                           = 0;
+  };
+
+  //---------------------------------------------------------------
+
   struct ITcpReader {
     virtual ~ITcpReader()                      = default;
     virtual bool read(char* data, size_t size) = 0;
   };
 
+  //---------------------------------------------------------------
+
   struct ITcpReaderFactory {
-    virtual ~ITcpReaderFactory()                    = default;
-    virtual ITcpReader* create()                    = 0;
-    virtual void        destroy(ITcpReader* client) = 0;
+    virtual ~ITcpReaderFactory()                                   = default;
+    virtual ITcpReader* create(std::unique_ptr<ITcpWriter> writer) = 0;
+    virtual void        destroy(ITcpReader* client)                = 0;
   };
+
+  //---------------------------------------------------------------
 
   class TcpServer {
     std::shared_ptr<uvw::TCPHandle>    handle_;
@@ -22,4 +35,6 @@ namespace gallery {
 
     void listen(const char* addr, int port);
   };
+
+  //---------------------------------------------------------------
 } // namespace gallery

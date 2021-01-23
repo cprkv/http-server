@@ -7,7 +7,7 @@ namespace gallery {
 
   public:
     Log() noexcept;
-    spdlog::logger* operator->();
+    spdlog::logger* operator->() { return instance_.get(); }
   };
 
   extern Log g_log;

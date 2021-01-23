@@ -16,11 +16,15 @@ conan_cmake_run(
   BASIC_SETUP CMAKE_TARGETS
   BUILD missing)
 
+add_subdirectory(llhttp)
+
+
 set(sources src/main.cpp src/http-server.cpp src/http-server.hpp src/tcp-server.cpp src/tcp-server.hpp src/log.cpp src/log.hpp)
 
 add_executable(gallery-api ${sources})
 target_include_directories(gallery-api PRIVATE src)
 target_link_libraries(gallery-api
+  llhttp
   CONAN_PKG::nlohmann_json
   CONAN_PKG::uvw
   CONAN_PKG::spdlog)

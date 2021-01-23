@@ -1,8 +1,26 @@
 #include "tcp-server.hpp"
 #include "log.hpp"
+#include <utility>
 #include <uvw.hpp>
 
 using namespace gallery;
+
+struct TcpWriter : public ITcpWriter {
+  std::shared_ptr<uvw::TCPHandle> handle;
+
+  explicit TcpWriter(std::shared_ptr<uvw::TCPHandle> handle)
+      : handle{ std::move(handle) } {}
+
+  void write(std::unique_ptr<char[]> data, size_t size) override {
+    g_log->debug("tcp_writer: write {} bytes", size);
+    handle->write(std::move(data), size);
+  }
+
+  void done() override {
+    g_log->debug("tcp_writer: done");
+    handle->close();
+  }
+};
 
 TcpServer::TcpServer(std::unique_ptr<ITcpReaderFactory> client_factory)
     : handle_{ uvw::Loop::getDefault()->resource<uvw::TCPHandle>() }
@@ -14,7 +32,7 @@ TcpServer::TcpServer(std::unique_ptr<ITcpReaderFactory> client_factory)
 
   handle_->on<uvw::ListenEvent>([this](const uvw::ListenEvent&, uvw::TCPHandle& handle) {
     auto client_handle = handle.loop().resource<uvw::TCPHandle>();
-    auto reader        = reader_factory_->create();
+    auto reader        = reader_factory_->create(std::make_unique<TcpWriter>(client_handle));
 
     client_handle->on<uvw::CloseEvent>([this, reader](const uvw::CloseEvent&, uvw::TCPHandle& handle) {
       g_log->debug("client_handle: close event");

@@ -5,11 +5,16 @@
 
 using namespace gallery;
 
+#if defined(DEBUG)
+  #define DEBUG_RELEASE_SWITCH(deb, rel) deb
+#else
+  #define DEBUG_RELEASE_SWITCH(deb, rel) rel
+#endif
+
 Log gallery::g_log{};
 
-// todo: make it async and console and debug stuff.... https://github.com/gabime/spdlog
-
 Log::Log() noexcept {
+  constexpr const auto   log_level{ DEBUG_RELEASE_SWITCH(spdlog::level::trace, spdlog::level::info) };
   constexpr const size_t max_file_size{ 1024 * 1024 * 4 };
   constexpr const size_t max_files{ 5 };
   const std::string      logger_name{ "gallery" };
@@ -24,12 +29,5 @@ Log::Log() noexcept {
   instance_ = std::make_shared<spdlog::async_logger>(
       logger_name, sinks.begin(), sinks.end(), spdlog::thread_pool(),
       spdlog::async_overflow_policy::block);
-
-#if defined(DEBUG)
-  instance_->set_level(spdlog::level::trace);
-#endif
-}
-
-spdlog::logger* Log::operator->() {
-  return instance_.get();
+  instance_->set_level(log_level);
 }
