@@ -1,9 +1,9 @@
 #include <stdio.h>
 #ifndef LLHTTP__TEST
-# include "llhttp.h"
+  #include "llhttp.h"
 #else
-# define llhttp_t llparse_t
-#endif  /* */
+  #define llhttp_t llparse_t
+#endif /* */
 
 int llhttp_message_needs_eof(const llhttp_t* parser);
 int llhttp_should_keep_alive(const llhttp_t* parser);
@@ -97,8 +97,8 @@ int llhttp__after_message_complete(llhttp_t* parser, const char* p,
   int should_keep_alive;
 
   should_keep_alive = llhttp_should_keep_alive(parser);
-  parser->finish = HTTP_FINISH_SAFE;
-  parser->flags = 0;
+  parser->finish    = HTTP_FINISH_SAFE;
+  parser->flags     = 0;
 
   /* NOTE: this is ignored in loose parsing mode */
   return should_keep_alive;
@@ -114,7 +114,7 @@ int llhttp_message_needs_eof(const llhttp_t* parser) {
   if (parser->status_code / 100 == 1 || /* 1xx e.g. Continue */
       parser->status_code == 204 ||     /* No Content */
       parser->status_code == 304 ||     /* Not Modified */
-      (parser->flags & F_SKIPBODY)) {     /* response to a HEAD request */
+      (parser->flags & F_SKIPBODY)) {   /* response to a HEAD request */
     return 0;
   }
 

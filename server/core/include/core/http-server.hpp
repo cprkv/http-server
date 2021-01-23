@@ -1,10 +1,10 @@
 #pragma once
-#include "tcp-server.hpp"
-#include "http-request-parser.hpp"
+#include "core/tcp-server.hpp"
+#include "core/http-request-parser.hpp"
 #include <regex>
 #include <functional>
 
-namespace gallery {
+namespace core {
   //---------------------------------------------------------------
 
   // base class for users
@@ -57,4 +57,4 @@ namespace gallery {
   };
 
   //---------------------------------------------------------------
-} // namespace gallery
+} // namespace core

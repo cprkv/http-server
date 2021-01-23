@@ -1,7 +1,7 @@
 #pragma once
 #include <spdlog/logger.h>
 
-namespace gallery {
+namespace core {
   class Log {
     std::shared_ptr<spdlog::logger> instance_;
 
@@ -11,4 +11,4 @@ namespace gallery {
   };
 
   extern Log g_log;
-} // namespace gallery
+} // namespace core

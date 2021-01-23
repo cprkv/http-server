@@ -5,7 +5,7 @@
 #include <utility>
 #include <llhttp.h>
 
-namespace gallery {
+namespace core {
   //---------------------------------------------------------------
 
   using HeadersMap = std::unordered_multimap<std::string, std::string>;
@@ -38,4 +38,4 @@ namespace gallery {
   };
 
   //---------------------------------------------------------------
-} // namespace gallery
+} // namespace core

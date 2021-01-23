@@ -5,15 +5,15 @@ extern "C" {
 #endif
 #include <stddef.h>
 
-typedef llhttp__internal_t llhttp_t;
+typedef llhttp__internal_t       llhttp_t;
 typedef struct llhttp_settings_s llhttp_settings_t;
 
-typedef int (*llhttp_data_cb)(llhttp_t*, const char *at, size_t length);
+typedef int (*llhttp_data_cb)(llhttp_t*, const char* at, size_t length);
 typedef int (*llhttp_cb)(llhttp_t*);
 
 struct llhttp_settings_s {
   /* Possible return values 0, -1, `HPE_PAUSED` */
-  llhttp_cb      on_message_begin;
+  llhttp_cb on_message_begin;
 
   llhttp_data_cb on_url;
   llhttp_data_cb on_status;
@@ -29,24 +29,24 @@ struct llhttp_settings_s {
    * -1 - Error
    * `HPE_PAUSED`
    */
-  llhttp_cb      on_headers_complete;
+  llhttp_cb on_headers_complete;
 
   llhttp_data_cb on_body;
 
   /* Possible return values 0, -1, `HPE_PAUSED` */
-  llhttp_cb      on_message_complete;
+  llhttp_cb on_message_complete;
 
   /* When on_chunk_header is called, the current chunk length is stored
    * in parser->content_length.
    * Possible return values 0, -1, `HPE_PAUSED`
    */
-  llhttp_cb      on_chunk_header;
-  llhttp_cb      on_chunk_complete;
+  llhttp_cb on_chunk_header;
+  llhttp_cb on_chunk_complete;
 
-  llhttp_cb      on_url_complete;
-  llhttp_cb      on_status_complete;
-  llhttp_cb      on_header_field_complete;
-  llhttp_cb      on_header_value_complete;
+  llhttp_cb on_url_complete;
+  llhttp_cb on_status_complete;
+  llhttp_cb on_header_field_complete;
+  llhttp_cb on_header_value_complete;
 };
 
 /* Initialize the parser with specific type and user http_parser_settings.
@@ -177,6 +177,6 @@ void llhttp_set_lenient_headers(llhttp_t* parser, int enabled);
 void llhttp_set_lenient_chunked_length(llhttp_t* parser, int enabled);
 
 #ifdef __cplusplus
-}  /* extern "C" */
+} /* extern "C" */
 #endif
-#endif  /* INCLUDE_LLHTTP_API_H_ */
+#endif /* INCLUDE_LLHTTP_API_H_ */

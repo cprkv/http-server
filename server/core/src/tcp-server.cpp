@@ -1,9 +1,9 @@
-#include "tcp-server.hpp"
-#include "log.hpp"
+#include "core/tcp-server.hpp"
+#include "core/log.hpp"
 #include <utility>
 #include <uvw.hpp>
 
-using namespace gallery;
+using namespace core;
 
 struct TcpWriter : public ITcpWriter {
   std::shared_ptr<uvw::TCPHandle> handle;

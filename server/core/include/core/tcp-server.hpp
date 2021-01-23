@@ -1,7 +1,7 @@
 #pragma once
 #include <uvw.hpp>
 
-namespace gallery {
+namespace core {
   //---------------------------------------------------------------
 
   struct ITcpWriter {
@@ -37,4 +37,4 @@ namespace gallery {
   };
 
   //---------------------------------------------------------------
-} // namespace gallery
+} // namespace core

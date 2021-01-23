@@ -1,9 +1,9 @@
-#include "log.hpp"
+#include "core/log.hpp"
 #include <spdlog/sinks/rotating_file_sink.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/async.h>
 
-using namespace gallery;
+using namespace core;
 
 #if defined(DEBUG)
   #define DEBUG_RELEASE_SWITCH(deb, rel) deb
@@ -11,14 +11,14 @@ using namespace gallery;
   #define DEBUG_RELEASE_SWITCH(deb, rel) rel
 #endif
 
-Log gallery::g_log{};
+Log core::g_log{};
 
 Log::Log() noexcept {
   constexpr const auto   log_level{ DEBUG_RELEASE_SWITCH(spdlog::level::trace, spdlog::level::info) };
   constexpr const size_t max_file_size{ 1024 * 1024 * 4 };
   constexpr const size_t max_files{ 5 };
-  const std::string      logger_name{ "gallery" };
-  const std::string      filename{ "logs/api.log" };
+  const std::string      logger_name{ "core" };
+  const std::string      filename{ "logs/server.log" };
 
   spdlog::init_thread_pool(1024 * 8, 1);
 

@@ -1,9 +1,9 @@
-#include "http-server.hpp"
-#include "log.hpp"
+#include "core/http-server.hpp"
+#include "core/log.hpp"
 #include "utils.hpp"
 #include <llhttp.h>
 
-using namespace gallery;
+using namespace core;
 
 //---------------------------------------------------------------
 

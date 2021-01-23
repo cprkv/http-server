@@ -1,7 +1,7 @@
-#include "http-request-parser.hpp"
-#include "log.hpp"
+#include "core/http-request-parser.hpp"
+#include "core/log.hpp"
 
-using namespace gallery;
+using namespace core;
 
 static llhttp_settings_t get_http_parser_settings() noexcept;
 
@@ -59,9 +59,9 @@ static llhttp_settings_t get_http_parser_settings() noexcept {
       g_log->debug("[llhttp] method: {}", method_name);
 
       if (strcmp(method_name, "GET") == 0) {
-        reader->request_.method = gallery::HttpMethod::GET;
+        reader->request_.method = core::HttpMethod::GET;
       } else if (strcmp(method_name, "POST") == 0) {
-        reader->request_.method = gallery::HttpMethod::POST;
+        reader->request_.method = core::HttpMethod::POST;
       } else {
         g_log->error("[llhttp] unknown method: {}", method_name);
         return -1;
