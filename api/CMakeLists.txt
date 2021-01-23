@@ -24,6 +24,7 @@ target_link_libraries(gallery-api
   CONAN_PKG::nlohmann_json
   CONAN_PKG::uvw
   CONAN_PKG::spdlog)
+target_compile_definitions(gallery-api PUBLIC "$<$<CONFIG:DEBUG>:DEBUG>")
 set_target_properties(gallery-api PROPERTIES
   CXX_STANDARD 20
   CXX_STANDARD_REQUIRED TRUE

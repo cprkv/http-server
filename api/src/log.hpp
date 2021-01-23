@@ -3,7 +3,7 @@
 
 namespace gallery {
   class Log {
-    std::shared_ptr<spdlog::logger> instance;
+    std::shared_ptr<spdlog::logger> instance_;
 
   public:
     Log() noexcept;
