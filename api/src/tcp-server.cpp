@@ -46,9 +46,7 @@ TcpServer::TcpServer(std::unique_ptr<ITcpReaderFactory> client_factory)
 
     client_handle->on<uvw::DataEvent>([reader](const uvw::DataEvent& data, uvw::TCPHandle& handle) {
       g_log->debug("client_handle: data event");
-      if (bool should_continue{ reader->read(data.data.get(), data.length) }; !should_continue) {
-        handle.close();
-      }
+      reader->read(data.data.get(), data.length);
     });
 
     g_log->debug("client_handle: accept");

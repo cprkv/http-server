@@ -19,7 +19,7 @@ conan_cmake_run(
 add_subdirectory(llhttp)
 
 
-set(sources src/main.cpp src/http-server.cpp src/http-server.hpp src/tcp-server.cpp src/tcp-server.hpp src/log.cpp src/log.hpp)
+set(sources src/main.cpp src/http-server.cpp src/http-server.hpp src/tcp-server.cpp src/tcp-server.hpp src/log.cpp src/log.hpp src/http-request-parser.cpp src/http-request-parser.hpp src/utils.hpp)
 
 add_executable(gallery-api ${sources})
 target_include_directories(gallery-api PRIVATE src)

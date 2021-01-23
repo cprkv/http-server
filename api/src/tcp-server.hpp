@@ -13,7 +13,7 @@ namespace gallery {
 
   struct ITcpReader {
     virtual ~ITcpReader()                      = default;
-    virtual bool read(char* data, size_t size) = 0;
+    virtual void read(char* data, size_t size) = 0;
   };
 
   //---------------------------------------------------------------

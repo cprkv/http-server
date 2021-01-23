@@ -1,28 +1,10 @@
 #pragma once
 #include "tcp-server.hpp"
-#include <string>
+#include "http-request-parser.hpp"
 #include <regex>
-#include <unordered_map>
 #include <functional>
 
 namespace gallery {
-  //---------------------------------------------------------------
-
-  using HeadersMap = std::unordered_multimap<std::string, std::string>;
-
-  enum class HttpMethod {
-    GET,
-    POST
-  };
-
-  struct HttpRequest {
-    bool        done{ false };
-    std::string url;
-    HttpMethod  method;
-    HeadersMap  headers;
-    std::string body; // is it really should be string? may be some linked buffer?
-  };
-
   //---------------------------------------------------------------
 
   // base class for users
@@ -41,7 +23,7 @@ namespace gallery {
       RequestHandlerFactory construct;
     };
 
-    using HttpHandlers = std::vector<Handler>;
+    using HttpHandlers = std::vector<Handler>; // TODO: regex-tree?
 
     HttpHandlers handlers_{};
     TcpServer    tcp_;
@@ -71,6 +53,7 @@ namespace gallery {
 
     // internal usage only
     void handle_request(HttpRequest request, std::unique_ptr<ITcpWriter> writer);
+    void handle_request_parse_error(std::unique_ptr<ITcpWriter> writer);
   };
 
   //---------------------------------------------------------------
