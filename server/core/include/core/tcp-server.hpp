@@ -5,6 +5,7 @@ namespace core {
   //---------------------------------------------------------------
 
   struct ITcpWriter {
+    virtual ~ITcpWriter()                                         = default;
     virtual void write(std::unique_ptr<char[]> data, size_t size) = 0;
     virtual void done()                                           = 0;
   };

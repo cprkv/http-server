@@ -9,13 +9,18 @@ namespace core {
 
   // base class for users
   struct HttpRequestHandler {
-    virtual void handle(HttpRequest request) = 0;
+    std::unique_ptr<ITcpWriter> writer{ nullptr };
+    HttpRequest                 request;
+
+    virtual ~HttpRequestHandler();
+    virtual void handle() = 0;
+    void         destroy();
   };
 
   //---------------------------------------------------------------
 
   class HttpServer {
-    using RequestHandlerFactory = std::function<std::unique_ptr<HttpRequestHandler>()>;
+    using RequestHandlerFactory = std::function<HttpRequestHandler*()>; // TODO should not be unique ptr?
 
     struct Handler {
       HttpMethod            method;
@@ -34,26 +39,26 @@ namespace core {
     template <typename THandler>
     void get(const std::regex& url_match) {
       handlers_.emplace_back(Handler{
-          .url_match = url_match,
           .method    = HttpMethod::GET,
-          .construct = [] { return std::make_unique<THandler>(); },
+          .url_match = url_match,
+          .construct = [] { return new THandler(); },
       });
     }
 
     template <typename THandler>
     void post(const std::regex& url_match) {
       handlers_.emplace_back(Handler{
-          .url_match = url_match,
           .method    = HttpMethod::POST,
-          .construct = [] { return std::make_unique<THandler>(); },
+          .url_match = url_match,
+          .construct = [] { return new THandler(); },
       });
     }
 
     void listen(const char* addr, int port);
 
     // internal usage only
-    void handle_request(HttpRequest request, std::unique_ptr<ITcpWriter> writer);
-    void handle_request_parse_error(std::unique_ptr<ITcpWriter> writer);
+    void        _handle_request(HttpRequest request, std::unique_ptr<ITcpWriter> writer);
+    static void _handle_request_parse_error(std::unique_ptr<ITcpWriter> writer);
   };
 
   //---------------------------------------------------------------

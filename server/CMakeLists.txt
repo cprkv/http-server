@@ -8,6 +8,14 @@ endif ()
 
 include(${CMAKE_BINARY_DIR}/conan.cmake)
 
+if(${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
+  message("using sanitizer")
+  set(ASAN_OPTS "-fsanitize=leak")
+else()
+  set(ASAN_OPTS "")
+endif()
+
+
 conan_cmake_run(
   REQUIRES
     nlohmann_json/3.9.1

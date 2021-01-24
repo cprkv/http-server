@@ -1,6 +1,6 @@
 #include "core/http-server.hpp"
 #include "core/log.hpp"
-#include "utils.hpp"
+#include "core/utils.hpp"
 #include <llhttp.h>
 
 using namespace core;
@@ -23,9 +23,9 @@ struct HttpTcpReader : public ITcpReader {
     if (!parser.done_) {
       if (!parse_error && !parser.handle(data, size)) {
         parse_error = true;
-        server->handle_request_parse_error(std::move(this->writer));
+        core::HttpServer::_handle_request_parse_error(std::move(this->writer));
       } else if (parser.done_) {
-        server->handle_request(std::move(parser.request_), std::move(this->writer));
+        server->_handle_request(std::move(parser.request_), std::move(this->writer));
       }
     }
   }
@@ -54,30 +54,43 @@ void HttpServer::listen(const char* addr, int port) {
   tcp_.listen(addr, port);
 }
 
-void HttpServer::handle_request(HttpRequest request, std::unique_ptr<ITcpWriter> writer) {
+void HttpServer::_handle_request(HttpRequest request, std::unique_ptr<ITcpWriter> writer) {
+  for (auto& handler : handlers_) {
+    if (handler.method == request.method && std::regex_match(request.url, handler.url_match)) {
+      auto request_handler     = handler.construct();
+      request_handler->writer  = std::move(writer);
+      request_handler->request = std::move(request);
+      request_handler->handle();
+      return;
+    }
+  }
+
+  g_log->info("error handling request: no such handler");
+  _handle_request_parse_error(std::move(writer)); // TODO 404 not found
+}
+
+void HttpServer::_handle_request_parse_error(std::unique_ptr<ITcpWriter> writer) {
   // TODO
-  g_log->info("handling request");
-  auto [buf, size] = cstr_to_writable_data("HTTP/1.1 200 OK\r\n"
-                                           "Content-Type: text/html; charser=utf-8\r\n"
-                                           "Connection: close\r\n"
-                                           "\r\n"
-                                           "hello, world!\r\n"
-                                           "\r\n");
+  g_log->info("handling request parse error answer");
+  auto [buf, size] = cstr_to_writable_data(
+      "HTTP/1.1 400 Bad Request\r\n"
+      "Content-Type: text/html; charser=utf-8\r\n"
+      "Connection: close\r\n"
+      "\r\n"
+      "bad request\r\n"
+      "\r\n");
   writer->write(std::move(buf), size);
   writer->done();
 }
 
-void HttpServer::handle_request_parse_error(std::unique_ptr<ITcpWriter> writer) {
-  // TODO
-  g_log->info("handling request parse error answer");
-  auto [buf, size] = cstr_to_writable_data("HTTP/1.1 400 Bad Request\r\n"
-                                           "Content-Type: text/html; charser=utf-8\r\n"
-                                           "Connection: close\r\n"
-                                           "\r\n"
-                                           "bad request\r\n"
-                                           "\r\n");
-  writer->write(std::move(buf), size);
-  writer->done();
+//---------------------------------------------------------------
+
+void HttpRequestHandler::destroy() {
+  next_tick([this]() { delete this; });
+}
+
+HttpRequestHandler::~HttpRequestHandler() {
+  g_log->debug("~HttpRequestHandler");
 }
 
 //---------------------------------------------------------------

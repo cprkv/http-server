@@ -5,11 +5,15 @@
 
 using namespace core;
 
+//---------------------------------------------------------------
+
 struct TcpWriter : public ITcpWriter {
   std::shared_ptr<uvw::TCPHandle> handle;
 
   explicit TcpWriter(std::shared_ptr<uvw::TCPHandle> handle)
       : handle{ std::move(handle) } {}
+
+  ~TcpWriter() override { g_log->debug("~TcpWriter"); }
 
   void write(std::unique_ptr<char[]> data, size_t size) override {
     g_log->debug("tcp_writer: write {} bytes", size);
@@ -21,6 +25,8 @@ struct TcpWriter : public ITcpWriter {
     handle->close();
   }
 };
+
+//---------------------------------------------------------------
 
 TcpServer::TcpServer(std::unique_ptr<ITcpReaderFactory> client_factory)
     : handle_{ uvw::Loop::getDefault()->resource<uvw::TCPHandle>() }
@@ -59,3 +65,5 @@ void TcpServer::listen(const char* addr, int port) {
   handle_->bind(addr, port);
   handle_->listen();
 }
+
+//---------------------------------------------------------------

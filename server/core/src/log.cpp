@@ -22,8 +22,8 @@ Log::Log() noexcept {
 
   spdlog::init_thread_pool(1024 * 8, 1);
 
-  auto stdout_sink   = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
-  auto rotating_sink = std::make_shared<spdlog::sinks::rotating_file_sink_mt>(filename, max_file_size, max_files);
+  auto stdout_sink   = std::make_shared<spdlog::sinks::stdout_color_sink_st>();
+  auto rotating_sink = std::make_shared<spdlog::sinks::rotating_file_sink_st>(filename, max_file_size, max_files);
   auto sinks         = std::vector<spdlog::sink_ptr>{ stdout_sink, rotating_sink };
 
   instance_ = std::make_shared<spdlog::async_logger>(
