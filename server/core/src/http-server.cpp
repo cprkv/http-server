@@ -86,7 +86,7 @@ void HttpServer::_handle_request_parse_error(std::unique_ptr<ITcpWriter> writer)
 //---------------------------------------------------------------
 
 void HttpRequestHandler::destroy() {
-  next_tick([this]() { delete this; });
+  next_tick([ptr = this]() { delete ptr; });
 }
 
 HttpRequestHandler::~HttpRequestHandler() {
