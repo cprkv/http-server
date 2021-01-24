@@ -1,4 +1,5 @@
 #include "core/utils.hpp"
+#include "core/log.hpp"
 #include <cstring>
 #include <uvw.hpp>
 
@@ -16,9 +17,8 @@ void core::next_tick(std::function<void()> func) {
   auto timer = uvw::Loop::getDefault()->resource<uvw::TimerHandle>();
   timer->init();
   timer->on<uvw::TimerEvent>([func = std::move(func)](const uvw::TimerEvent&, uvw::TimerHandle& timer) {
-    timer.clear();
     func();
-    timer.stop();
+    timer.close();
   });
   timer->start(0ms, 0ms);
 }
