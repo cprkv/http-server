@@ -1,8 +1,7 @@
+# веб галерея
 
+Сайтик для галереи с фоточками.  
+На сервере json-api бекенд на c++ с библиотеками libuv, uvw, llhttp, spdlog.  
+На фронте react.  
 
- - [ ] публикация на vadik.tech
- - [ ] выбрать бд и фреймворк для исполнения (db postgres)
-    - [ ] c++ (uvw, folly?, boost asio/coro?)
-        - [ ] html generate, слегка js
-        - [ ] json api, react
-    - [ ] js - pug, слегка js
+**work in progress.**
