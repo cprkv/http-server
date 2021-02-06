@@ -7,6 +7,84 @@ using namespace core;
 
 //---------------------------------------------------------------
 
+HttpResponse& HttpResponse::status(HttpStatusCode code) {
+  status_ = static_cast<int>(code);
+  return *this;
+}
+
+HttpResponse& HttpResponse::with_default_status_message() {
+  switch (status_) {
+    case 200: message_ = "200 OK"; break;
+    case 201: message_ = "201 Created"; break;
+    case 202: message_ = "202 Accepted"; break;
+    case 203: message_ = "203 Non-Authoritative Information"; break;
+    case 204: message_ = "204 No Content"; break;
+    case 205: message_ = "205 Reset Content"; break;
+    case 206: message_ = "206 Partial Content"; break;
+    case 207: message_ = "207 Multi-Status"; break;
+    case 208: message_ = "208 Already Reported"; break;
+    case 226: message_ = "226 IM Used"; break;
+
+    case 300: message_ = "300 Multiple Choices"; break;
+    case 301: message_ = "301 Moved Permanently"; break;
+    case 302: message_ = "302 Found"; break;
+    case 303: message_ = "303 See Other"; break;
+    case 304: message_ = "304 Not Modified"; break;
+    case 305: message_ = "305 Use Proxy"; break;
+    case 306: message_ = "306 Switch Proxy"; break;
+    case 307: message_ = "307 Temporary Redirect"; break;
+    case 308: message_ = "308 Permanent Redirect"; break;
+
+    case 400: message_ = "400 Bad Request"; break;
+    case 401: message_ = "401 Unauthorized"; break;
+    case 402: message_ = "402 Payment Required"; break;
+    case 403: message_ = "403 Forbidden"; break;
+    case 404: message_ = "404 Not Found"; break;
+    case 405: message_ = "405 Method Not Allowed"; break;
+    case 406: message_ = "406 Not Acceptable"; break;
+    case 407: message_ = "407 Proxy Authentication Required"; break;
+    case 408: message_ = "408 Request Timeout"; break;
+    case 409: message_ = "409 Conflict"; break;
+    case 410: message_ = "410 Gone"; break;
+    case 411: message_ = "411 Length Required"; break;
+    case 412: message_ = "412 Precondition Failed"; break;
+    case 413: message_ = "413 Payload Too Large"; break;
+    case 414: message_ = "414 Request-URI Too Long"; break;
+    case 415: message_ = "415 Unsupported Media Type"; break;
+    case 416: message_ = "416 Requested Range Not Satisfiable"; break;
+    case 417: message_ = "417 Expectation Failed"; break;
+    case 418: message_ = "418 I'm a teapot"; break;
+    case 421: message_ = "421 Misdirected Request"; break;
+    case 422: message_ = "422 Unprocessable Entity"; break;
+    case 423: message_ = "423 Locked"; break;
+    case 424: message_ = "424 Failed Dependency"; break;
+    case 426: message_ = "426 Upgrade Required"; break;
+    case 428: message_ = "428 Precondition Required"; break;
+    case 429: message_ = "429 Too Many Requests"; break;
+    case 431: message_ = "431 Request Header Fields Too Large"; break;
+    case 444: message_ = "444 Connection Closed Without Response"; break;
+    case 451: message_ = "451 Unavailable For Legal Reasons"; break;
+    case 499: message_ = "499 Client Closed Request"; break;
+
+    case 500: message_ = "500 Internal Server Error"; break;
+    case 501: message_ = "501 Not Implemented"; break;
+    case 502: message_ = "502 Bad Gateway"; break;
+    case 503: message_ = "503 Service Unavailable"; break;
+    case 504: message_ = "504 Gateway Timeout"; break;
+    case 505: message_ = "505 HTTP Version Not Supported"; break;
+    case 506: message_ = "506 Variant Also Negotiates"; break;
+    case 507: message_ = "507 Insufficient Storage"; break;
+    case 508: message_ = "508 Loop Detected"; break;
+    case 510: message_ = "510 Not Extended"; break;
+    case 511: message_ = "511 Network Authentication Required"; break;
+    case 599: message_ = "599 Network Connect Timeout Error"; break;
+  }
+
+  return *this;
+}
+
+//---------------------------------------------------------------
+
 struct HttpTcpReader : public ITcpReader {
   HttpServer*                 server;
   std::unique_ptr<ITcpWriter> writer;
