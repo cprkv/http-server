@@ -5,6 +5,79 @@
 
 using namespace core;
 
+static const char* status_code_message(int code) {
+  switch (code) {
+    case 200: return "200 OK";
+    case 201: return "201 Created";
+    case 202: return "202 Accepted";
+    case 203: return "203 Non-Authoritative Information";
+    case 204: return "204 No Content";
+    case 205: return "205 Reset Content";
+    case 206: return "206 Partial Content";
+    case 207: return "207 Multi-Status";
+    case 208: return "208 Already Reported";
+    case 226: return "226 IM Used";
+
+    case 300: return "300 Multiple Choices";
+    case 301: return "301 Moved Permanently";
+    case 302: return "302 Found";
+    case 303: return "303 See Other";
+    case 304: return "304 Not Modified";
+    case 305: return "305 Use Proxy";
+    case 306: return "306 Switch Proxy";
+    case 307: return "307 Temporary Redirect";
+    case 308: return "308 Permanent Redirect";
+
+    case 400: return "400 Bad Request";
+    case 401: return "401 Unauthorized";
+    case 402: return "402 Payment Required";
+    case 403: return "403 Forbidden";
+    case 404: return "404 Not Found";
+    case 405: return "405 Method Not Allowed";
+    case 406: return "406 Not Acceptable";
+    case 407: return "407 Proxy Authentication Required";
+    case 408: return "408 Request Timeout";
+    case 409: return "409 Conflict";
+    case 410: return "410 Gone";
+    case 411: return "411 Length Required";
+    case 412: return "412 Precondition Failed";
+    case 413: return "413 Payload Too Large";
+    case 414: return "414 Request-URI Too Long";
+    case 415: return "415 Unsupported Media Type";
+    case 416: return "416 Requested Range Not Satisfiable";
+    case 417: return "417 Expectation Failed";
+    case 418: return "418 I'm a teapot";
+    case 421: return "421 Misdirected Request";
+    case 422: return "422 Unprocessable Entity";
+    case 423: return "423 Locked";
+    case 424: return "424 Failed Dependency";
+    case 426: return "426 Upgrade Required";
+    case 428: return "428 Precondition Required";
+    case 429: return "429 Too Many Requests";
+    case 431: return "431 Request Header Fields Too Large";
+    case 444: return "444 Connection Closed Without Response";
+    case 451: return "451 Unavailable For Legal Reasons";
+    case 499: return "499 Client Closed Request";
+
+    case 500: return "500 Internal Server Error";
+    case 501: return "501 Not Implemented";
+    case 502: return "502 Bad Gateway";
+    case 503: return "503 Service Unavailable";
+    case 504: return "504 Gateway Timeout";
+    case 505: return "505 HTTP Version Not Supported";
+    case 506: return "506 Variant Also Negotiates";
+    case 507: return "507 Insufficient Storage";
+    case 508: return "508 Loop Detected";
+    case 510: return "510 Not Extended";
+    case 511: return "511 Network Authentication Required";
+    case 599: return "599 Network Connect Timeout Error";
+
+    default:
+      g_log->error("unknown http status code: {}", code);
+      return "500 Internal Server Error";
+  }
+}
+
 //---------------------------------------------------------------
 
 HttpResponse& HttpResponse::status(HttpStatusCode code) {
@@ -13,74 +86,37 @@ HttpResponse& HttpResponse::status(HttpStatusCode code) {
 }
 
 HttpResponse& HttpResponse::with_default_status_message() {
-  switch (status_) {
-    case 200: message_ = "200 OK"; break;
-    case 201: message_ = "201 Created"; break;
-    case 202: message_ = "202 Accepted"; break;
-    case 203: message_ = "203 Non-Authoritative Information"; break;
-    case 204: message_ = "204 No Content"; break;
-    case 205: message_ = "205 Reset Content"; break;
-    case 206: message_ = "206 Partial Content"; break;
-    case 207: message_ = "207 Multi-Status"; break;
-    case 208: message_ = "208 Already Reported"; break;
-    case 226: message_ = "226 IM Used"; break;
-
-    case 300: message_ = "300 Multiple Choices"; break;
-    case 301: message_ = "301 Moved Permanently"; break;
-    case 302: message_ = "302 Found"; break;
-    case 303: message_ = "303 See Other"; break;
-    case 304: message_ = "304 Not Modified"; break;
-    case 305: message_ = "305 Use Proxy"; break;
-    case 306: message_ = "306 Switch Proxy"; break;
-    case 307: message_ = "307 Temporary Redirect"; break;
-    case 308: message_ = "308 Permanent Redirect"; break;
-
-    case 400: message_ = "400 Bad Request"; break;
-    case 401: message_ = "401 Unauthorized"; break;
-    case 402: message_ = "402 Payment Required"; break;
-    case 403: message_ = "403 Forbidden"; break;
-    case 404: message_ = "404 Not Found"; break;
-    case 405: message_ = "405 Method Not Allowed"; break;
-    case 406: message_ = "406 Not Acceptable"; break;
-    case 407: message_ = "407 Proxy Authentication Required"; break;
-    case 408: message_ = "408 Request Timeout"; break;
-    case 409: message_ = "409 Conflict"; break;
-    case 410: message_ = "410 Gone"; break;
-    case 411: message_ = "411 Length Required"; break;
-    case 412: message_ = "412 Precondition Failed"; break;
-    case 413: message_ = "413 Payload Too Large"; break;
-    case 414: message_ = "414 Request-URI Too Long"; break;
-    case 415: message_ = "415 Unsupported Media Type"; break;
-    case 416: message_ = "416 Requested Range Not Satisfiable"; break;
-    case 417: message_ = "417 Expectation Failed"; break;
-    case 418: message_ = "418 I'm a teapot"; break;
-    case 421: message_ = "421 Misdirected Request"; break;
-    case 422: message_ = "422 Unprocessable Entity"; break;
-    case 423: message_ = "423 Locked"; break;
-    case 424: message_ = "424 Failed Dependency"; break;
-    case 426: message_ = "426 Upgrade Required"; break;
-    case 428: message_ = "428 Precondition Required"; break;
-    case 429: message_ = "429 Too Many Requests"; break;
-    case 431: message_ = "431 Request Header Fields Too Large"; break;
-    case 444: message_ = "444 Connection Closed Without Response"; break;
-    case 451: message_ = "451 Unavailable For Legal Reasons"; break;
-    case 499: message_ = "499 Client Closed Request"; break;
-
-    case 500: message_ = "500 Internal Server Error"; break;
-    case 501: message_ = "501 Not Implemented"; break;
-    case 502: message_ = "502 Bad Gateway"; break;
-    case 503: message_ = "503 Service Unavailable"; break;
-    case 504: message_ = "504 Gateway Timeout"; break;
-    case 505: message_ = "505 HTTP Version Not Supported"; break;
-    case 506: message_ = "506 Variant Also Negotiates"; break;
-    case 507: message_ = "507 Insufficient Storage"; break;
-    case 508: message_ = "508 Loop Detected"; break;
-    case 510: message_ = "510 Not Extended"; break;
-    case 511: message_ = "511 Network Authentication Required"; break;
-    case 599: message_ = "599 Network Connect Timeout Error"; break;
-  }
-
+  message_ = status_code_message(status_);
   return *this;
+}
+
+HttpResponse& HttpResponse::header(std::string key, std::string value) {
+  auto [it, ok] = headers_.try_emplace(std::move(key), std::move(value));
+  if (!ok) {
+    g_log->error("error adding header '{}': header with that key already present", key);
+  }
+  return *this;
+}
+
+void HttpResponse::done() {
+  if (!headers_.contains("Content-Type")) {
+    headers_.emplace("Content-Type", "text/html; charser=utf-8");
+  }
+  if (!headers_.contains("Connection")) {
+    headers_.emplace("Connection", "close");
+  }
+  writer->data << "HTTP/1.1 " << status_code_message(status_) << "\r\n";
+  for (auto& [key, value] : headers_) {
+    writer->data << key << ": " << value << "\r\n";
+  }
+  writer->data << "\r\n";
+  if (!message_.empty()) {
+    writer->data << message_ << "\r\n";
+  }
+  writer->done();
+  if (handler_) {
+    handler_->destroy();
+  }
 }
 
 //---------------------------------------------------------------
@@ -135,30 +171,25 @@ void HttpServer::listen(const char* addr, int port) {
 void HttpServer::_handle_request(HttpRequest request, std::unique_ptr<ITcpWriter> writer) {
   for (auto& handler : handlers_) {
     if (handler.method == request.method && std::regex_match(request.url, handler.url_match)) {
-      auto request_handler     = handler.construct();
-      request_handler->writer  = std::move(writer);
-      request_handler->request = std::move(request);
+      auto request_handler             = handler.construct();
+      request_handler->request         = std::move(request);
+      request_handler->response.writer = std::move(writer);
       request_handler->handle();
       return;
     }
   }
 
   g_log->info("error handling request: no such handler");
-  _handle_request_parse_error(std::move(writer)); // TODO 404 not found
+  HttpResponse response{ nullptr };
+  response.writer = std::move(writer);
+  response.status(HttpStatusCode::NotFound).with_default_status_message().done(); // todo: data destroyed here
 }
 
 void HttpServer::_handle_request_parse_error(std::unique_ptr<ITcpWriter> writer) {
-  // TODO
   g_log->info("handling request parse error answer");
-  auto [buf, size] = cstr_to_writable_data(
-      "HTTP/1.1 400 Bad Request\r\n"
-      "Content-Type: text/html; charser=utf-8\r\n"
-      "Connection: close\r\n"
-      "\r\n"
-      "bad request\r\n"
-      "\r\n");
-  writer->write(std::move(buf), size);
-  writer->done();
+  HttpResponse response{ nullptr };
+  response.writer = std::move(writer);
+  response.status(HttpStatusCode::BadRequest).with_default_status_message().done(); // todo: data destroyed here
 }
 
 //---------------------------------------------------------------

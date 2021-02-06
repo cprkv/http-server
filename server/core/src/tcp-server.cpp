@@ -9,18 +9,21 @@ using namespace core;
 
 struct TcpWriter : public ITcpWriter {
   std::shared_ptr<uvw::TCPHandle> handle;
+  std::string                     data_result;
 
   explicit TcpWriter(std::shared_ptr<uvw::TCPHandle> handle)
       : handle{ std::move(handle) } {}
 
   ~TcpWriter() override { g_log->debug("~TcpWriter"); }
 
-  void write(std::unique_ptr<char[]> data, size_t size) override {
-    g_log->debug("tcp_writer: write {} bytes", size);
-    handle->write(std::move(data), size);
-  }
-
   void done() override {
+    data_result = data.str();
+
+    g_log->debug("tcp_writer: write {} bytes", data_result.size());
+    handle->write(const_cast<char*>(data_result.c_str()), data_result.size());
+
+    // todo: handle->on< ... written >([handle](){ handle->close() });
+
     g_log->debug("tcp_writer: done");
     handle->close();
   }

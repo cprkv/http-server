@@ -4,16 +4,12 @@
 
 struct ExampleHandler : public core::HttpRequestHandler {
   void handle() override {
-    auto [buf, size] = core::cstr_to_writable_data(
-        "HTTP/1.1 200 OK\r\n"
-        "Content-Type: text/html; charser=utf-8\r\n"
-        "Connection: close\r\n"
-        "\r\n"
-        "example!\r\n"
-        "\r\n");
-    writer->write(std::move(buf), size);
-    writer->done();
-    destroy();
+    response
+        .status(core::HttpStatusCode::OK)
+        .header("Content-Type", "text/html; charser=utf-8")
+        .header("Connection", "close")
+        .with_default_status_message()
+        .done();
   }
 
   ~ExampleHandler() override {

@@ -3,6 +3,9 @@
 #include "core/http-request-parser.hpp"
 #include <regex>
 #include <functional>
+#include <map>
+
+struct HttpTcpReader;
 
 namespace core {
   //---------------------------------------------------------------
@@ -79,24 +82,34 @@ namespace core {
   // response builder
   struct HttpResponse {
   private:
-    std::unique_ptr<ITcpWriter> writer{ nullptr };
-    int                         status_{ 500 };
-    std::string                 message_{};
+    std::unique_ptr<ITcpWriter>        writer{ nullptr };
+    int                                status_{ 500 };
+    std::string                        message_{};
+    std::map<std::string, std::string> headers_{};
+    struct HttpRequestHandler*         handler_;
+
+    friend class HttpServer;
 
   public:
-    HttpResponse() = default;
+    explicit HttpResponse(HttpRequestHandler* handler)
+        : handler_{ handler } {}
 
+    HttpResponse& header(std::string key, std::string value);
     HttpResponse& status(HttpStatusCode code);
     HttpResponse& with_default_status_message(); // requires status(...) call before
 
+    void done();
   };
 
   //---------------------------------------------------------------
 
   // base class for users
   struct HttpRequestHandler {
-    std::unique_ptr<ITcpWriter> writer{ nullptr };
-    HttpRequest                 request;
+    HttpRequest  request{};
+    HttpResponse response;
+
+    HttpRequestHandler()
+        : response{ this } {}
 
     virtual ~HttpRequestHandler();
     virtual void handle() = 0;
@@ -143,6 +156,10 @@ namespace core {
     void listen(const char* addr, int port);
 
     // internal usage only
+
+  private:
+    friend struct HttpTcpReader;
+
     void        _handle_request(HttpRequest request, std::unique_ptr<ITcpWriter> writer);
     static void _handle_request_parse_error(std::unique_ptr<ITcpWriter> writer);
   };
