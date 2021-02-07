@@ -3,17 +3,15 @@
 #include "core/utils.hpp"
 
 struct ExampleHandler : public core::HttpRequestHandler {
+  ~ExampleHandler() override {
+    core::g_log->debug("~ExampleHandler");
+  }
+
   void handle() override {
     response
         .status(core::HttpStatusCode::OK)
-        .header("Content-Type", "text/html; charser=utf-8")
-        .header("Connection", "close")
         .with_default_status_message()
         .done();
-  }
-
-  ~ExampleHandler() override {
-    core::g_log->debug("~ExampleHandler");
   }
 };
 

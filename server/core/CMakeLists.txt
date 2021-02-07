@@ -1,7 +1,21 @@
 cmake_minimum_required(VERSION 3.4)
 project(core)
 
-set(sources src/http-request-parser.cpp src/http-server.cpp src/log.cpp src/tcp-server.cpp include/core/utils.hpp include/core/http-request-parser.hpp include/core/http-server.hpp include/core/log.hpp include/core/tcp-server.hpp src/utils.cpp)
+set(sources
+  include/core/http-info.hpp
+  include/core/http-request-parser.hpp
+  include/core/http-server.hpp
+  include/core/log.hpp
+  include/core/tcp-server.hpp
+  include/core/utils.hpp
+
+  src/http-info.cpp
+  src/http-request-parser.cpp
+  src/http-server.cpp
+  src/log.cpp
+  src/tcp-server.cpp
+  src/utils.cpp
+  )
 
 add_library(core ${sources})
 target_include_directories(core PUBLIC include PRIVATE src)
