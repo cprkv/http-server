@@ -157,7 +157,14 @@ void HttpServer::_handle_request(HttpRequest request, std::unique_ptr<ITcpWriter
 
   request_handler->request = std::move(request);
 
-  if (!request_handler->preprocess()) {
+  bool preprocess_ok = false;
+  try {
+    preprocess_ok = request_handler->preprocess();
+  } catch (std::exception& ex) {
+    g_log->debug("exception in preprocess: {}", ex.what());
+  }
+
+  if (!preprocess_ok) {
     g_log->debug("error handling request: preprocess error");
     request = std::move(request_handler->request);
     delete request_handler;

@@ -18,22 +18,40 @@ struct ExampleHandler : public core::HttpRequestHandler {
 };
 
 struct TestPartsHandler : public core::HttpRequestHandler {
-  static inline core::HttpMethod method = core::HttpMethod::GET;
+  static inline core::HttpMethod method = core::HttpMethod::POST;
   static inline const char*      path   = "/api/part/{int}/{string}";
 
   int         part{ 0 };
   std::string name{};
+  std::string password{};
+  std::string username{};
 
   ~TestPartsHandler() override = default;
 
   bool preprocess() override {
-    return unwrap_url(part, name);
+    if (!unwrap_url(part, name)) {
+      return false;
+    }
+    if (!request.body) {
+      return false;
+    }
+    if (request.body->type() != core::HttpBodyType::Json) {
+      return false;
+    }
+
+    auto body = dynamic_cast<core::HttpBodyJson*>(request.body.get());
+    password  = body->object["password"].get<std::string>();
+    username  = body->object["username"].get<std::string>();
+
+    return true;
   }
 
   void handle() override {
     std::stringstream ss;
     ss << "hello from parts handler!\r\n"
-       << "current part: " << part << ", name: " << name << "\r\n";
+       << "current part: " << part << ", name: " << name << "\r\n"
+       << "password: '" << password << "'\r\n"
+       << "username: '" << username << "'\r\n";
 
     response
         .status(core::HttpStatusCode::OK)

@@ -1,5 +1,6 @@
 #include "core/http-request-parser.hpp"
 #include "core/log.hpp"
+#include "core/http-info.hpp"
 
 using namespace core;
 
@@ -48,7 +49,7 @@ static llhttp_settings_t get_http_parser_settings() noexcept {
 
     .on_body = [](llhttp_t* http, const char* at, size_t length) -> int {
       auto reader = reinterpret_cast<HttpRequestParser*>(http->data);
-      reader->request_.body += std::string_view{ at, length };
+      reader->body_parser_.add_buffer(at, length);
       g_log->debug("[llhttp] on body {} bytes", length);
       return 0;
     },
@@ -68,6 +69,18 @@ static llhttp_settings_t get_http_parser_settings() noexcept {
       }
 
       g_log->debug("[llhttp] message complete, execute handling");
+
+      auto content_type_it = reader->request_.headers.find(std::string{ HttpRequestHeaderKey::ContentType });
+      if (content_type_it != reader->request_.headers.end()) {
+        auto content_type = content_type_it->second;
+        auto body         = reader->body_parser_.parse(content_type);
+        if (body) {
+          reader->request_.body = std::move(body);
+        } else {
+          g_log->debug("content couldn't be parsed by type {}", content_type);
+          return -1;
+        }
+      }
 
       reader->done_ = true;
       return 0;

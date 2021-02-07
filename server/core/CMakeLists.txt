@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.4)
 project(core)
 
 set(sources
+  include/core/http-body-parser.hpp
   include/core/http-info.hpp
   include/core/http-request-parser.hpp
   include/core/http-server.hpp
@@ -9,6 +10,7 @@ set(sources
   include/core/tcp-server.hpp
   include/core/utils.hpp
 
+  src/http-body-parser.cpp
   src/http-info.cpp
   src/http-request-parser.cpp
   src/http-server.cpp

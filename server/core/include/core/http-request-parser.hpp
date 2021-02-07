@@ -1,4 +1,5 @@
 #pragma once
+#include "core/http-body-parser.hpp"
 #include <string>
 #include <unordered_map>
 #include <functional>
@@ -17,21 +18,22 @@ namespace core {
   };
 
   struct HttpRequest {
-    std::string url;
-    std::smatch url_matches;
-    HttpMethod  method;
-    HeadersMap  headers;
-    std::string body; // is it really should be string? may be some linked buffer?
+    std::string               url;
+    std::smatch               url_matches;
+    HttpMethod                method;
+    HeadersMap                headers;
+    std::unique_ptr<HttpBody> body{ nullptr };
   };
 
   //---------------------------------------------------------------
 
   struct HttpRequestParser {
-    bool        done_{ false }; // after done it could be deleted
-    HttpRequest request_{};
-    llhttp_t    parser{};
-    std::string last_header_field_{};
-    std::string last_header_value_{};
+    bool           done_{ false }; // after done it could be deleted
+    HttpRequest    request_{};
+    llhttp_t       parser{};
+    std::string    last_header_field_{};
+    std::string    last_header_value_{};
+    HttpBodyParser body_parser_{};
 
     HttpRequestParser();
     ~HttpRequestParser();
