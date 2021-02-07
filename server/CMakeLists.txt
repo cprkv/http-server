@@ -13,9 +13,12 @@ conan_cmake_run(
     nlohmann_json/3.9.1
     uvw/2.8.0
     spdlog/1.8.2
+    sqlite3/3.34.1
   BASIC_SETUP CMAKE_TARGETS
   BUILD missing)
 
-add_subdirectory(llhttp)
+add_subdirectory(deps/llhttp)
+add_subdirectory(deps/sqlite_modern_cpp)
+
 add_subdirectory(core)
 add_subdirectory(api)

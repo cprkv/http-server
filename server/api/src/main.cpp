@@ -1,5 +1,10 @@
 #include "core/http-server.hpp"
 #include "core/log.hpp"
+#include "core/db/sqlite.hpp"
+
+struct App {
+  core::db::Sqlite db{ core::db::SqliteSettings{ .db_name = "gallery.db" } };
+} g_app;
 
 struct ExampleHandler : public core::HttpRequestHandler {
   static inline core::HttpMethod method = core::HttpMethod::GET;
@@ -10,10 +15,31 @@ struct ExampleHandler : public core::HttpRequestHandler {
   }
 
   void handle() override {
-    response
-        .status(core::HttpStatusCode::OK)
-        .with_default_status_message()
-        .done();
+    g_app.db.with_context<int>(
+        [](sqlite::database& db, int& count_) {
+          db << "select count(*) from tests where age > ? ;"
+             << 18 >>
+              [&](int count) {
+                count_ = count;
+              };
+        },
+        [this](const int* count) {
+          std::stringstream    ss;
+          core::HttpStatusCode code;
+
+          if (count) {
+            ss << "tests rows count: " << *count << "\r\n";
+            code = core::HttpStatusCode::OK;
+          } else {
+            ss << "db error\r\n";
+            code = core::HttpStatusCode::InternalServerError;
+          }
+
+          response
+              .status(code)
+              .with_message(ss.str())
+              .done();
+        });
   }
 };
 
