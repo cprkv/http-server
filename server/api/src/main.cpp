@@ -1,10 +1,9 @@
 #include "core/http-server.hpp"
 #include "core/log.hpp"
-#include "core/utils.hpp"
 
 struct ExampleHandler : public core::HttpRequestHandler {
   static inline core::HttpMethod method = core::HttpMethod::GET;
-  static inline const char*      path   = "^/api/example$";
+  static inline const char*      path   = "/api/example";
 
   ~ExampleHandler() override {
     core::g_log->debug("~ExampleHandler");
@@ -20,7 +19,7 @@ struct ExampleHandler : public core::HttpRequestHandler {
 
 struct TestPartsHandler : public core::HttpRequestHandler {
   static inline core::HttpMethod method = core::HttpMethod::GET;
-  static inline const char*      path   = "^/api/part/(\\d+)/([^\\/]+)$";
+  static inline const char*      path   = "/api/part/{int}/{string}";
 
   int         part{ 0 };
   std::string name{};
@@ -28,13 +27,14 @@ struct TestPartsHandler : public core::HttpRequestHandler {
   ~TestPartsHandler() override = default;
 
   bool preprocess() override {
-    return core::url::unwrap(request.url_matches, part, name);
+    return unwrap_url(part, name);
   }
 
   void handle() override {
     std::stringstream ss;
     ss << "hello from parts handler!\r\n"
        << "current part: " << part << ", name: " << name << "\r\n";
+
     response
         .status(core::HttpStatusCode::OK)
         .with_message(ss.str())

@@ -2,6 +2,7 @@
 #include "core/tcp-server.hpp"
 #include "core/http-request-parser.hpp"
 #include "core/http-info.hpp"
+#include "core/utils.hpp"
 #include <regex>
 #include <functional>
 #include <map>
@@ -46,6 +47,11 @@ namespace core {
     virtual bool preprocess() { return true; }
     virtual void handle() = 0;
     void         destroy();
+
+    template <typename... TArgs>
+    bool unwrap_url(TArgs&&... args) {
+      return url::unwrap(request.url_matches, std::forward<TArgs>(args)...);
+    }
   };
 
   //---------------------------------------------------------------
@@ -66,6 +72,8 @@ namespace core {
     RequestHandlerFactory make_bad_request_handler_;
     TcpServer             tcp_;
 
+    static std::regex preprocess_regex(const std::string& str);
+
   public:
     HttpServer();
 
@@ -73,7 +81,7 @@ namespace core {
     void add_handler() {
       handlers_.emplace_back(Handler{
           .method    = THandler::method,
-          .url_match = std::regex{ THandler::path },
+          .url_match = preprocess_regex(THandler::path),
           .construct = [] { return new THandler(); },
       });
     }

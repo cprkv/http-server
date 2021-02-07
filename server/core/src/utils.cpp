@@ -18,3 +18,15 @@ void core::next_tick(std::function<void()> func) {
 int core::run_main_loop() {
   return uvw::Loop::getDefault()->run();
 }
+
+std::string core::replace_all(std::string str, std::string_view from, std::string_view to) {
+  if (from.empty()) {
+    return str;
+  }
+  size_t start_pos{ 0 };
+  while ((start_pos = str.find(from, start_pos)) != std::string::npos) {
+    str.replace(start_pos, from.length(), to);
+    start_pos += to.length(); // In case 'to' contains 'from', like replacing 'x' with 'yx'
+  }
+  return str;
+}

@@ -161,7 +161,7 @@ void HttpServer::_handle_request(HttpRequest request, std::unique_ptr<ITcpWriter
     g_log->debug("error handling request: preprocess error");
     request = std::move(request_handler->request);
     delete request_handler;
-    request_handler = make_bad_request_handler_();
+    request_handler          = make_bad_request_handler_();
     request_handler->request = std::move(request);
   }
 
@@ -174,6 +174,13 @@ void HttpServer::_handle_request_parse_error(std::unique_ptr<ITcpWriter> writer)
   auto request_handler             = make_bad_request_handler_();
   request_handler->response.writer = std::move(writer);
   request_handler->handle();
+}
+
+std::regex HttpServer::preprocess_regex(const std::string& str) {
+  std::string result{ "^" + str + "$" };
+  result = replace_all(result, "{int}", "(\\d+)");
+  result = replace_all(result, "{string}", "([^\\/]+)");
+  return std::regex(result);
 }
 
 //---------------------------------------------------------------
