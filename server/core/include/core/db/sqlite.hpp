@@ -1,11 +1,12 @@
 #pragma once
 #include "core/log.hpp"
+#include "core/error.hpp"
 #include <sqlite_modern_cpp.h>
+#include <uvw/async.h>
+#include <uvw/work.h>
 #include <mutex>
 #include <list>
 #include <utility>
-#include <uvw/async.h>
-#include <uvw/work.h>
 #include <thread>
 #include <sstream>
 
@@ -58,11 +59,15 @@ namespace core::db {
 
     template <typename TUserData>
     struct WorkData {
-      TUserData                                          user_data{};
-      sqlite::database*                                  db{ nullptr };
-      std::function<void(sqlite::database&, TUserData&)> action;
-      std::function<void(TUserData*)>                    continuation;
-      size_t                                             retry_count{ 0 };
+      using Action       = std::function<void(sqlite::database&, TUserData&)>;
+      using Continuation = std::function<void(TUserData&, const Error&)>;
+
+      TUserData         user_data{};
+      sqlite::database* db{ nullptr };
+      Action            action;
+      Continuation      continuation;
+      size_t            retry_count{ 0 };
+      Error             error{};
     };
 
     template <typename TUserData>
@@ -71,8 +76,14 @@ namespace core::db {
         g_log->debug("calling WorkReq on tid: {}", current_thread_id());
         work_data->db = pool_.acquire();
         if (work_data->db) {
-          work_data->action(*work_data->db, work_data->user_data);
+          work_data->error = std::move(Error{});
+          try {
+            work_data->action(*work_data->db, work_data->user_data);
+          } catch (std::exception& ex) {
+            work_data->error = std::move(Error{ ex });
+          }
         } else {
+          work_data->error = std::move(Error{ ErrorCode::NoConnectionsInPool });
           g_log->debug("database pool busy");
         }
       };
@@ -84,15 +95,14 @@ namespace core::db {
         g_log->debug("calling WorkEvent on tid: {}", current_thread_id());
         if (work_data->db) {
           pool_.release(work_data->db);
-          work_data->continuation(&work_data->user_data);
+        }
+        if (!work_data->error || work_data->error.code() != ErrorCode::NoConnectionsInPool) {
+          work_data->continuation(work_data->user_data, work_data->error);
           delete work_data;
         } else if (work_data->retry_count < 16) {
           g_log->debug("no result from database. retrying...");
           work_data->retry_count++;
-          enqueue_task(work_data); // todo enqueue after some timeout
-        } else {
-          g_log->debug("no result from database and retry count exceeded.");
-          work_data->continuation(nullptr);
+          enqueue_task(work_data);
         }
       };
     }
@@ -111,8 +121,8 @@ namespace core::db {
         : pool_{ std::move(settings) } {}
 
     template <typename TUserData>
-    void with_context(std::function<void(sqlite::database&, TUserData&)> action,
-                      std::function<void(TUserData*)>                    continuation) {
+    void with_context(typename WorkData<TUserData>::Action       action,
+                      typename WorkData<TUserData>::Continuation continuation) {
       auto work_data          = new WorkData<TUserData>{};
       work_data->continuation = std::move(continuation);
       work_data->action       = std::move(action);

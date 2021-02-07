@@ -18,7 +18,7 @@ set(sources
   src/log.cpp
   src/tcp-server.cpp
   src/utils.cpp
-  src/db/sqlite.cpp)
+  src/db/sqlite.cpp include/core/error.hpp src/error.cpp)
 
 add_library(core ${sources})
 target_include_directories(core PUBLIC include PRIVATE src)

@@ -16,23 +16,23 @@ struct ExampleHandler : public core::HttpRequestHandler {
 
   void handle() override {
     g_app.db.with_context<int>(
-        [](sqlite::database& db, int& count_) {
+        [](sqlite::database& db, int& count) {
           db << "select count(*) from tests where age > ? ;"
              << 18 >>
-              [&](int count) {
-                count_ = count;
+              [&](int count_) {
+                count = count_;
               };
         },
-        [this](const int* count) {
+        [this](int& count, const auto& error) {
           std::stringstream    ss;
           core::HttpStatusCode code;
 
-          if (count) {
-            ss << "tests rows count: " << *count << "\r\n";
-            code = core::HttpStatusCode::OK;
-          } else {
-            ss << "db error\r\n";
+          if (error) {
+            ss << error.what() << "\r\n";
             code = core::HttpStatusCode::InternalServerError;
+          } else {
+            ss << "tests rows count: " << count << "\r\n";
+            code = core::HttpStatusCode::OK;
           }
 
           response
