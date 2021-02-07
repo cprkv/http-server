@@ -4,6 +4,7 @@
 #include <functional>
 #include <utility>
 #include <llhttp.h>
+#include <regex>
 
 namespace core {
   //---------------------------------------------------------------
@@ -17,6 +18,7 @@ namespace core {
 
   struct HttpRequest {
     std::string url;
+    std::smatch url_matches;
     HttpMethod  method;
     HeadersMap  headers;
     std::string body; // is it really should be string? may be some linked buffer?

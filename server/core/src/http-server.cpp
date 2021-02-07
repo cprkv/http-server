@@ -49,6 +49,11 @@ HttpResponse& HttpResponse::header(std::string key, std::string value) {
   return *this;
 }
 
+HttpResponse& HttpResponse::with_message(std::string message) {
+  message_ = std::move(message);
+  return *this;
+}
+
 void HttpResponse::done() {
   static const std::string default_content_type{ Mime::combine(Mime::text_html, "charser=utf-8") };
 
@@ -135,10 +140,12 @@ void HttpServer::listen(const char* addr, int port) {
 
 void HttpServer::_handle_request(HttpRequest request, std::unique_ptr<ITcpWriter> writer) {
   HttpRequestHandler* request_handler{ nullptr };
+  std::smatch         matches;
 
   for (auto& handler : handlers_) {
-    if (handler.method == request.method && std::regex_match(request.url, handler.url_match)) {
-      request_handler = handler.construct();
+    if (handler.method == request.method && std::regex_match(request.url, matches, handler.url_match)) {
+      request_handler     = handler.construct();
+      request.url_matches = matches;
       break;
     }
   }
@@ -148,7 +155,16 @@ void HttpServer::_handle_request(HttpRequest request, std::unique_ptr<ITcpWriter
     request_handler = make_not_found_handler_();
   }
 
-  request_handler->request         = std::move(request);
+  request_handler->request = std::move(request);
+
+  if (!request_handler->preprocess()) {
+    g_log->debug("error handling request: preprocess error");
+    request = std::move(request_handler->request);
+    delete request_handler;
+    request_handler = make_bad_request_handler_();
+    request_handler->request = std::move(request);
+  }
+
   request_handler->response.writer = std::move(writer);
   request_handler->handle();
 }

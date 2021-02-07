@@ -27,6 +27,7 @@ namespace core {
 
     HttpResponse& header(std::string key, std::string value);
     HttpResponse& status(HttpStatusCode code);
+    HttpResponse& with_message(std::string message);
     HttpResponse& with_default_status_message(); // requires status(...) call before
 
     void done();
@@ -42,6 +43,7 @@ namespace core {
         : response{ this } {}
 
     virtual ~HttpRequestHandler();
+    virtual bool preprocess() { return true; }
     virtual void handle() = 0;
     void         destroy();
   };
@@ -68,32 +70,23 @@ namespace core {
     HttpServer();
 
     template <typename THandler>
-    void get(const std::regex& url_match) {
+    void add_handler() {
       handlers_.emplace_back(Handler{
-          .method    = HttpMethod::GET,
-          .url_match = url_match,
+          .method    = THandler::method,
+          .url_match = std::regex{ THandler::path },
           .construct = [] { return new THandler(); },
       });
     }
 
     template <typename THandler>
-    void post(const std::regex& url_match) {
-      handlers_.emplace_back(Handler{
-          .method    = HttpMethod::POST,
-          .url_match = url_match,
-          .construct = [] { return new THandler(); },
-      });
-    }
-
-    template <typename THandler>
-    void not_found() {
+    void set_not_found_handler() {
       make_not_found_handler_ = [] {
         return new THandler();
       };
     }
 
     template <typename THandler>
-    void bad_request() {
+    void set_bad_request_handler() {
       make_bad_request_handler_ = [] {
         return new THandler();
       };
