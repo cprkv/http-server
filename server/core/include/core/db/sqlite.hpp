@@ -4,6 +4,7 @@
 #include <sqlite_modern_cpp.h>
 #include <uvw/async.h>
 #include <uvw/work.h>
+#include <continuable/continuable.hpp>
 #include <mutex>
 #include <list>
 #include <utility>

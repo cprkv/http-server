@@ -23,6 +23,7 @@ set(sources
 add_library(core ${sources})
 target_include_directories(core PUBLIC include PRIVATE src)
 target_link_libraries(core
+  continuable
   llhttp
   sqlite_modern_cpp
   CONAN_PKG::nlohmann_json

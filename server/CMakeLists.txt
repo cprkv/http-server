@@ -17,6 +17,8 @@ conan_cmake_run(
   BASIC_SETUP CMAKE_TARGETS
   BUILD missing)
 
+add_subdirectory(deps/continuable)
+add_subdirectory(deps/function2)
 add_subdirectory(deps/llhttp)
 add_subdirectory(deps/sqlite_modern_cpp)
 
