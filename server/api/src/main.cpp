@@ -30,13 +30,7 @@ struct ExampleHandler : public core::HttpRequestHandler {
           response.status(core::HttpStatusCode::OK)
               << "tests rows count: " << count << "\r\n";
           return response;
-        })
-        .fail(core::unwrap_exception_ptr([](const std::exception& ex) {
-          core::HttpResponse response{};
-          response.status(core::HttpStatusCode::InternalServerError)
-              << "error: " << ex.what() << "\r\n";
-          return response;
-        }));
+        });
   }
 };
 

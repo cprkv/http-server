@@ -22,9 +22,9 @@ namespace core {
   //---------------------------------------------------------------
 
   struct ITcpReaderFactory {
-    virtual ~ITcpReaderFactory()                                   = default;
-    virtual ITcpReader* create(std::unique_ptr<ITcpWriter> writer) = 0;
-    virtual void        destroy(ITcpReader* client)                = 0;
+    virtual ~ITcpReaderFactory()                    = default;
+    virtual ITcpReader* create(ITcpWriter* writer)  = 0;
+    virtual void        destroy(ITcpReader* client) = 0;
   };
 
   //---------------------------------------------------------------

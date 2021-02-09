@@ -50,7 +50,7 @@ HttpResponse& HttpResponse::header(std::string key, std::string value) {
   return *this;
 }
 
-void HttpResponse::write(std::unique_ptr<ITcpWriter> writer) {
+void HttpResponse::write(ITcpWriter* writer) {
   static const std::string default_content_type{ Mime::combine(Mime::text_html, "charser=utf-8") };
 
   if (!headers_.contains("Content-Type")) {
@@ -73,19 +73,20 @@ void HttpResponse::write(std::unique_ptr<ITcpWriter> writer) {
   }
 
   writer->done();
+  delete writer;
 }
 
 //---------------------------------------------------------------
 
 struct HttpTcpReader : public ITcpReader {
-  HttpServer*                 server;
-  std::unique_ptr<ITcpWriter> writer;
-  HttpRequestParser           parser;
-  bool                        parse_error{ false };
+  HttpServer*       server;
+  ITcpWriter*       writer;
+  HttpRequestParser parser;
+  bool              parse_error{ false };
 
-  explicit HttpTcpReader(HttpServer* server, std::unique_ptr<ITcpWriter> writer)
+  explicit HttpTcpReader(HttpServer* server, ITcpWriter* writer)
       : server{ server }
-      , writer{ std::move(writer) } {}
+      , writer{ writer } {}
 
   ~HttpTcpReader() override { g_log->debug("~HttpTcpReader"); }
 
@@ -93,9 +94,9 @@ struct HttpTcpReader : public ITcpReader {
     if (!parser.done_) {
       if (!parse_error && !parser.handle(data, size)) {
         parse_error = true;
-        server->_handle_request_parse_error(std::move(this->writer));
+        server->_handle_request_parse_error(writer);
       } else if (parser.done_) {
-        server->_handle_request(std::move(parser.request_), std::move(this->writer));
+        server->_handle_request(std::move(parser.request_), writer);
       }
     }
   }
@@ -110,7 +111,7 @@ struct HttpTcpReaderFactory : public ITcpReaderFactory {
       : server{ server } {}
   ~HttpTcpReaderFactory() override = default;
 
-  ITcpReader* create(std::unique_ptr<ITcpWriter> writer) override { return new HttpTcpReader(server, std::move(writer)); }
+  ITcpReader* create(ITcpWriter* writer) override { return new HttpTcpReader(server, writer); }
   void        destroy(ITcpReader* client) override { delete client; }
 };
 
@@ -130,7 +131,7 @@ void HttpServer::listen(const char* addr, int port) {
   tcp_.listen(addr, port);
 }
 
-void HttpServer::_handle_request(HttpRequest request, std::unique_ptr<ITcpWriter> writer) {
+void HttpServer::_handle_request(HttpRequest request, ITcpWriter* writer) {
   HttpRequestHandler* request_handler{ nullptr };
   std::smatch         matches;
 
@@ -165,19 +166,25 @@ void HttpServer::_handle_request(HttpRequest request, std::unique_ptr<ITcpWriter
   }
 
   request_handler->handle()
-      .then([writer = std::move(writer), request_handler](HttpResponse response) mutable {
+      .then([writer, request_handler](HttpResponse response) mutable {
         request_handler->destroy();
-        response.write(std::move(writer));
-      });
+        response.write(writer);
+      })
+      .fail(core::unwrap_exception_ptr([writer](const std::exception& ex) {
+        core::HttpResponse response{};
+        g_log->debug("error while handling request: {}", ex.what());
+        response.status(core::HttpStatusCode::InternalServerError).with_default_status_message();
+        response.write(writer);
+      }));
 }
 
-void HttpServer::_handle_request_parse_error(std::unique_ptr<ITcpWriter> writer) {
+void HttpServer::_handle_request_parse_error(ITcpWriter* writer) {
   g_log->debug("handling request parse error answer");
   auto request_handler = make_bad_request_handler_();
   request_handler->handle()
-      .then([writer = std::move(writer), request_handler](HttpResponse response) mutable {
+      .then([writer, request_handler](HttpResponse response) mutable {
         request_handler->destroy();
-        response.write(std::move(writer));
+        response.write(writer);
       });
 }
 

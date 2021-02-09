@@ -22,7 +22,7 @@ namespace core {
 
     friend class HttpServer;
 
-    void write(std::unique_ptr<ITcpWriter> writer);
+    void write(ITcpWriter* writer);
 
   public:
     HttpResponse& header(std::string key, std::string value);
@@ -106,8 +106,8 @@ namespace core {
   private:
     friend struct ::HttpTcpReader;
 
-    void _handle_request(HttpRequest request, std::unique_ptr<ITcpWriter> writer);
-    void _handle_request_parse_error(std::unique_ptr<ITcpWriter> writer);
+    void _handle_request(HttpRequest request, ITcpWriter* writer);
+    void _handle_request_parse_error(ITcpWriter* writer);
   };
 
   //---------------------------------------------------------------

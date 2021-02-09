@@ -41,7 +41,7 @@ TcpServer::TcpServer(std::unique_ptr<ITcpReaderFactory> client_factory)
 
   handle_->on<uvw::ListenEvent>([this](const uvw::ListenEvent&, uvw::TCPHandle& handle) {
     auto client_handle = handle.loop().resource<uvw::TCPHandle>();
-    auto reader        = reader_factory_->create(std::make_unique<TcpWriter>(client_handle));
+    auto reader        = reader_factory_->create(new TcpWriter(client_handle));
 
     client_handle->on<uvw::CloseEvent>([this, reader](const uvw::CloseEvent&, uvw::TCPHandle& handle) {
       g_log->debug("client_handle: close event");
