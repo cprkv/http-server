@@ -95,7 +95,7 @@ Result wait_relaxed(continuable_base<Data, Annotation>&& continuable) {
         ready = true;
         cv.notify_all();
       })
-      .done();
+      .write();
 
   lock_t lock(cv_mutex);
   if (!ready) {
@@ -166,7 +166,7 @@ Result wait_unsafe(continuable_base<Data, Annotation>&& continuable,
           locked->cv.notify_all();
         }
       })
-      .done();
+      .write();
 
   if (!frame->ready.load(std::memory_order_acquire)) {
     lock_t lock(frame->cv_mutex);

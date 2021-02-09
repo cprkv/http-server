@@ -6,13 +6,18 @@
 namespace core {
   //---------------------------------------------------------------
 
+#define X_ERROR_CODE_ENUM(X) \
+  X(None)                    \
+  X(Exception)               \
+  X(NoConnectionsInPool)
+
   enum class ErrorCode {
-    None,
-    Exception,
-    NoConnectionsInPool,
+#define EXPAND_X_ERROR_CODE_ENUM(val) val,
+    X_ERROR_CODE_ENUM(EXPAND_X_ERROR_CODE_ENUM)
+#undef EXPAND_X_ERROR_CODE_ENUM
   };
 
-  std::string to_string(ErrorCode code);
+  std::string_view to_string(ErrorCode code);
 
   //---------------------------------------------------------------
 

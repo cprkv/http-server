@@ -124,7 +124,7 @@ public:
           std::move(me->data_.callback)(exception_arg_t{},
                                         std::move(exception));
         })
-        .done();
+        .write();
   }
 
   template <typename T>

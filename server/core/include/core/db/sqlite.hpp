@@ -28,7 +28,8 @@ namespace core::db {
 
   public:
     explicit SqlitePool(SqliteSettings settings)
-        : settings_{ std::move(settings) } {} // todo pass max_pool_size
+        : settings_{ std::move(settings) }
+        , Pool<sqlite::database>{ settings.max_pool_size } {}
 
     ~SqlitePool() override = default;
   };

@@ -3,6 +3,7 @@
 #include "core/http-request-parser.hpp"
 #include "core/http-info.hpp"
 #include "core/utils.hpp"
+#include <continuable/continuable.hpp>
 #include <regex>
 #include <functional>
 #include <map>
@@ -14,39 +15,39 @@ namespace core {
   // response builder
   struct HttpResponse {
   private:
-    std::unique_ptr<ITcpWriter>        writer{ nullptr };
     HttpStatusCode                     status_{ HttpStatusCode::InternalServerError };
-    std::string                        message_{};
+    std::stringstream                  message_{};
     std::map<std::string, std::string> headers_{};
-    struct HttpRequestHandler*         handler_;
+    bool                               has_message_{ false };
 
     friend class HttpServer;
 
-  public:
-    explicit HttpResponse(HttpRequestHandler* handler)
-        : handler_{ handler } {}
+    void write(std::unique_ptr<ITcpWriter> writer);
 
+  public:
     HttpResponse& header(std::string key, std::string value);
     HttpResponse& status(HttpStatusCode code);
-    HttpResponse& with_message(std::string message);
     HttpResponse& with_default_status_message(); // requires status(...) call before
 
-    void done();
+    template <typename T>
+    HttpResponse& operator<<(T&& data) {
+      has_message_ = true;
+      message_ << data;
+      return *this;
+    }
   };
 
   //---------------------------------------------------------------
   // base class for users
   struct HttpRequestHandler {
-    HttpRequest  request{};
-    HttpResponse response;
+    HttpRequest request{};
 
-    HttpRequestHandler()
-        : response{ this } {}
+    HttpRequestHandler() = default;
 
     virtual ~HttpRequestHandler();
-    virtual bool preprocess() { return true; }
-    virtual void handle() = 0;
-    void         destroy();
+    virtual bool                           preprocess() { return true; }
+    virtual cti::continuable<HttpResponse> handle() = 0;
+    void                                   destroy();
 
     template <typename... TArgs>
     bool unwrap_url(TArgs&&... args) {

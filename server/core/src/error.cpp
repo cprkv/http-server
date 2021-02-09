@@ -2,11 +2,12 @@
 
 using namespace core;
 
-std::string core::to_string(ErrorCode code) {
+std::string_view core::to_string(ErrorCode code) {
   switch (code) {
-    case ErrorCode::None: return "None";
-    case ErrorCode::Exception: return "Exception";
-    case ErrorCode::NoConnectionsInPool: return "NoConnectionsInPool";
+#define EXPAND_X_ERROR_CODE_ENUM(val) \
+  case ErrorCode::val: return #val;
+    X_ERROR_CODE_ENUM(EXPAND_X_ERROR_CODE_ENUM)
+#undef EXPAND_X_ERROR_CODE_ENUM
   }
   return "Unknown";
 }

@@ -14,30 +14,28 @@ struct ExampleHandler : public core::HttpRequestHandler {
     core::g_log->debug("~ExampleHandler");
   }
 
-  void handle() override {
-    g_app.db.with_connection(
-                [](sqlite::database& db) {
-                  int result;
-                  db << "select count(*) from tests where age > ? ;"
-                     << 18 >>
-                      [&](int count) {
-                        result = count;
-                      };
-                  return result;
-                })
-        .then([this](int count) {
-          std::stringstream ss;
-          ss << "tests rows count: " << count << "\r\n";
-          response
-              .status(core::HttpStatusCode::OK)
-              .with_message(ss.str())
-              .done();
+  auto handle() -> decltype(core::HttpRequestHandler::handle()) override {
+    return g_app.db.with_connection(
+                       [](sqlite::database& db) {
+                         int result;
+                         db << "select count(*) from tests where age > ? ;"
+                            << 18 >>
+                             [&](int count) {
+                               result = count;
+                             };
+                         return result;
+                       })
+        .then([](int count) {
+          core::HttpResponse response{};
+          response.status(core::HttpStatusCode::OK)
+              << "tests rows count: " << count << "\r\n";
+          return response;
         })
-        .fail(core::unwrap_exception_ptr([this](const std::exception& ex) {
-          response
-              .status(core::HttpStatusCode::InternalServerError)
-              .with_message(ex.what())
-              .done();
+        .fail(core::unwrap_exception_ptr([](const std::exception& ex) {
+          core::HttpResponse response{};
+          response.status(core::HttpStatusCode::InternalServerError)
+              << "error: " << ex.what() << "\r\n";
+          return response;
         }));
   }
 };
@@ -71,17 +69,16 @@ struct TestPartsHandler : public core::HttpRequestHandler {
     return true;
   }
 
-  void handle() override {
-    std::stringstream ss;
-    ss << "hello from parts handler!\r\n"
-       << "current part: " << part << ", name: " << name << "\r\n"
-       << "password: '" << password << "'\r\n"
-       << "username: '" << username << "'\r\n";
-
-    response
-        .status(core::HttpStatusCode::OK)
-        .with_message(ss.str())
-        .done();
+  auto handle() -> decltype(core::HttpRequestHandler::handle()) override {
+    return cti::async([this] {
+      core::HttpResponse response{};
+      response.status(core::HttpStatusCode::OK)
+          << "hello from parts handler!\r\n"
+          << "current part: " << part << ", name: " << name << "\r\n"
+          << "password: '" << password << "'\r\n"
+          << "username: '" << username << "'\r\n";
+      return response;
+    });
   }
 };
 

@@ -393,7 +393,7 @@ public:
     return std::move(*this)                                     //
         .fail([continuation = std::move(continuation).freeze()] //
               (exception_t) mutable {
-                std::move(continuation).done(); //
+                std::move(continuation).write(); //
               });
   }
 

@@ -140,7 +140,7 @@ struct continuable_dispatcher {
                               std::decay_t<Box>>::value>* = nullptr>
   void operator()(Box&& box) const {
     // Retrieve a callback from the submitter and attach it to the continuable
-    box.fetch().next(submitter->create_callback(std::addressof(box))).done();
+    box.fetch().next(submitter->create_callback(std::addressof(box))).write();
   }
 };
 } // namespace all

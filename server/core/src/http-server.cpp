@@ -10,22 +10,24 @@ using namespace core;
 struct DefaultNotFoundHandler : public HttpRequestHandler {
   ~DefaultNotFoundHandler() override = default;
 
-  void handle() override {
-    response
-        .status(HttpStatusCode::NotFound)
-        .with_default_status_message()
-        .done();
+  auto handle() -> decltype(HttpRequestHandler::handle()) override {
+    return cti::async([] {
+      HttpResponse response{};
+      response.status(HttpStatusCode::NotFound).with_default_status_message();
+      return response;
+    });
   }
 };
 
 struct DefaultBadRequestHandler : public HttpRequestHandler {
   ~DefaultBadRequestHandler() override = default;
 
-  void handle() override {
-    response
-        .status(HttpStatusCode::BadRequest)
-        .with_default_status_message()
-        .done();
+  auto handle() -> decltype(HttpRequestHandler::handle()) override {
+    return cti::async([] {
+      HttpResponse response{};
+      response.status(HttpStatusCode::BadRequest).with_default_status_message();
+      return response;
+    });
   }
 };
 
@@ -37,8 +39,7 @@ HttpResponse& HttpResponse::status(HttpStatusCode code) {
 }
 
 HttpResponse& HttpResponse::with_default_status_message() {
-  message_ = http_status_code_message(status_);
-  return *this;
+  return *this << http_status_code_message(status_);
 }
 
 HttpResponse& HttpResponse::header(std::string key, std::string value) {
@@ -49,12 +50,7 @@ HttpResponse& HttpResponse::header(std::string key, std::string value) {
   return *this;
 }
 
-HttpResponse& HttpResponse::with_message(std::string message) {
-  message_ = std::move(message);
-  return *this;
-}
-
-void HttpResponse::done() {
+void HttpResponse::write(std::unique_ptr<ITcpWriter> writer) {
   static const std::string default_content_type{ Mime::combine(Mime::text_html, "charser=utf-8") };
 
   if (!headers_.contains("Content-Type")) {
@@ -72,15 +68,11 @@ void HttpResponse::done() {
 
   writer->data << "\r\n";
 
-  if (!message_.empty()) {
-    writer->data << message_ << "\r\n";
+  if (has_message_) {
+    writer->data << message_.str() << "\r\n";
   }
 
   writer->done();
-
-  if (handler_) {
-    handler_->destroy();
-  }
 }
 
 //---------------------------------------------------------------
@@ -172,15 +164,21 @@ void HttpServer::_handle_request(HttpRequest request, std::unique_ptr<ITcpWriter
     request_handler->request = std::move(request);
   }
 
-  request_handler->response.writer = std::move(writer);
-  request_handler->handle();
+  request_handler->handle()
+      .then([writer = std::move(writer), request_handler](HttpResponse response) mutable {
+        request_handler->destroy();
+        response.write(std::move(writer));
+      });
 }
 
 void HttpServer::_handle_request_parse_error(std::unique_ptr<ITcpWriter> writer) {
   g_log->debug("handling request parse error answer");
-  auto request_handler             = make_bad_request_handler_();
-  request_handler->response.writer = std::move(writer);
-  request_handler->handle();
+  auto request_handler = make_bad_request_handler_();
+  request_handler->handle()
+      .then([writer = std::move(writer), request_handler](HttpResponse response) mutable {
+        request_handler->destroy();
+        response.write(std::move(writer));
+      });
 }
 
 std::regex HttpServer::preprocess_regex(const std::string& str) {
