@@ -16,7 +16,7 @@ namespace core {
 
   //---------------------------------------------------------------
 
-  class Error : std::exception {
+  class Error : public std::exception {
     std::string what_{};
     bool        is_error_{ false };
     ErrorCode   code_{ ErrorCode::None };

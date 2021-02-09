@@ -3,7 +3,7 @@
 #include "core/db/sqlite.hpp"
 
 struct App {
-  core::db::SqliteOnContinuable db{ core::db::SqliteSettings{ .db_name = "gallery.db" } };
+  core::db::Sqlite db{ { .db_name = "gallery.db" } };
 } g_app;
 
 struct ExampleHandler : public core::HttpRequestHandler {
@@ -15,33 +15,7 @@ struct ExampleHandler : public core::HttpRequestHandler {
   }
 
   void handle() override {
-    //    g_app.db.with_context<int>(
-    //        [](sqlite::database& db, int& count) {
-    //          db << "select count(*) from tests where age > ? ;"
-    //             << 18 >>
-    //              [&](int count_) {
-    //                count = count_;
-    //              };
-    //        },
-    //        [this](int& count, const auto& error) {
-    //          std::stringstream    ss;
-    //          core::HttpStatusCode code;
-    //
-    //          if (error) {
-    //            ss << error.what() << "\r\n";
-    //            code = core::HttpStatusCode::InternalServerError;
-    //          } else {
-    //            ss << "tests rows count: " << count << "\r\n";
-    //            code = core::HttpStatusCode::OK;
-    //          }
-    //
-    //          response
-    //              .status(code)
-    //              .with_message(ss.str())
-    //              .done();
-    //        });
-
-    g_app.db.with_context<int>(
+    g_app.db.with_connection(
                 [](sqlite::database& db) {
                   int result;
                   db << "select count(*) from tests where age > ? ;"
@@ -54,20 +28,17 @@ struct ExampleHandler : public core::HttpRequestHandler {
         .then([this](int count) {
           std::stringstream ss;
           ss << "tests rows count: " << count << "\r\n";
-
           response
               .status(core::HttpStatusCode::OK)
               .with_message(ss.str())
               .done();
         })
-        .fail([this](const std::exception_ptr& ptr) {
-          if (ptr) {
-            response
-                .status(core::HttpStatusCode::InternalServerError)
-                .with_message("some error...")
-                .done();
-          }
-        });
+        .fail(core::unwrap_exception_ptr([this](const std::exception& ex) {
+          response
+              .status(core::HttpStatusCode::InternalServerError)
+              .with_message(ex.what())
+              .done();
+        }));
   }
 };
 

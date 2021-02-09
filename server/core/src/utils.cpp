@@ -30,3 +30,16 @@ std::string core::replace_all(std::string str, std::string_view from, std::strin
   }
   return str;
 }
+
+std::function<void(const std::exception_ptr&)> core::unwrap_exception_ptr(
+    std::function<void(const std::exception&)> on_ex) {
+  return [on_ex = std::move(on_ex)](const std::exception_ptr& ptr) {
+    try {
+      if (ptr) {
+        std::rethrow_exception(ptr);
+      }
+    } catch (const std::exception& e) {
+      on_ex(e);
+    }
+  };
+}

@@ -3,14 +3,18 @@ project(core)
 
 set(sources
   include/core/db/sqlite.hpp
+  include/core/error.hpp
   include/core/http-body-parser.hpp
   include/core/http-info.hpp
   include/core/http-request-parser.hpp
   include/core/http-server.hpp
   include/core/log.hpp
+  include/core/pool.hpp
+  include/core/pool-worker.hpp
   include/core/tcp-server.hpp
   include/core/utils.hpp
 
+  src/error.cpp
   src/http-body-parser.cpp
   src/http-info.cpp
   src/http-request-parser.cpp
@@ -18,7 +22,7 @@ set(sources
   src/log.cpp
   src/tcp-server.cpp
   src/utils.cpp
-  src/db/sqlite.cpp include/core/error.hpp src/error.cpp)
+  include/core/functor.hpp)
 
 add_library(core ${sources})
 target_include_directories(core PUBLIC include PRIVATE src)

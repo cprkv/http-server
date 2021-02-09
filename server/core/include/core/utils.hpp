@@ -9,6 +9,10 @@ namespace core {
   int         run_main_loop();
   std::string replace_all(std::string str, std::string_view from, std::string_view to);
 
+  std::function<void(const std::exception_ptr&)> unwrap_exception_ptr(
+      std::function<void(const std::exception&)> on_ex);
+
+
   // TODO: reduce copypasta
   // TODO: other types
   namespace url {
