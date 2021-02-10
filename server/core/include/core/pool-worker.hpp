@@ -15,12 +15,6 @@ namespace core {
   class PoolWorker {
     std::unique_ptr<Pool<TResource>> pool_;
 
-    inline static std::string current_thread_id() {
-      std::stringstream ss;
-      ss << std::this_thread::get_id();
-      return ss.str();
-    }
-
     template <typename TUserData>
     struct WorkData {
       using Action = std::function<TUserData(TResource&)>;
@@ -39,7 +33,6 @@ namespace core {
     template <typename TUserData>
     auto work(WorkData<TUserData>* work_data) {
       return [this, work_data]() {
-        g_log->debug("calling WorkReq on tid: {}", current_thread_id());
         work_data->resource = pool_->acquire();
 
         if (!work_data->resource) {
@@ -59,8 +52,6 @@ namespace core {
     template <typename TUserData>
     auto work_callback(WorkData<TUserData>* work_data) {
       return [this, work_data](const auto&, auto& handle) {
-        g_log->debug("calling WorkEvent on tid: {}", current_thread_id());
-
         if (work_data->resource) {
           pool_->release(work_data->resource);
         }
@@ -78,7 +69,6 @@ namespace core {
     template <typename TUserData>
     void enqueue_task(WorkData<TUserData>* work_data) {
       auto loop = uvw::Loop::getDefault();
-      g_log->debug("calling with context on tid: {}", current_thread_id());
       auto handle = loop->resource<uvw::WorkReq>(work(work_data));
       handle->template on<uvw::WorkEvent>(work_callback(work_data));
       handle->queue();
@@ -90,6 +80,7 @@ namespace core {
 
     template <typename TUserData>
     auto with_resource(typename WorkData<TUserData>::Action action) {
+      // todo retry on pool busy
       return cti::make_continuable<TUserData>([action = std::move(action), this](cti::promise<TUserData>&& promise) {
         auto work_data = new WorkData<TUserData>(action, std::move(promise));
         enqueue_task(work_data);

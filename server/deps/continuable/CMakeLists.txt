@@ -60,7 +60,7 @@ option(CTI_CONTINUABLE_WITH_EXPERIMENTAL_COROUTINE
 
 option(CTI_CONTINUABLE_WITH_CPP_LATEST
       "Enable the highest C++ standard available for testing polyfills"
-      OFF)
+      ON)
 
 option(CTI_CONTINUABLE_WITH_LIGHT_TESTS
       "Disable some template heavy unit tests (for CI usage)"
