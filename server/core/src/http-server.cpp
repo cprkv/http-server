@@ -10,7 +10,7 @@ using namespace core;
 struct DefaultNotFoundHandler : public HttpRequestHandler {
   ~DefaultNotFoundHandler() override = default;
 
-  auto handle() -> decltype(HttpRequestHandler::handle()) override {
+  HandleResult handle() override {
     return cti::async([] {
       HttpResponse response{};
       response.status(HttpStatusCode::NotFound).with_default_status_message();
@@ -22,7 +22,7 @@ struct DefaultNotFoundHandler : public HttpRequestHandler {
 struct DefaultBadRequestHandler : public HttpRequestHandler {
   ~DefaultBadRequestHandler() override = default;
 
-  auto handle() -> decltype(HttpRequestHandler::handle()) override {
+  HandleResult handle() override {
     return cti::async([] {
       HttpResponse response{};
       response.status(HttpStatusCode::BadRequest).with_default_status_message();

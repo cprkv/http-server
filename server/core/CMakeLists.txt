@@ -22,7 +22,7 @@ set(sources
   src/log.cpp
   src/tcp-server.cpp
   src/utils.cpp
-  include/core/functor.hpp)
+  include/core/functor.hpp include/core/ulid.hpp src/ulid.cpp)
 
 add_library(core ${sources})
 target_include_directories(core PUBLIC include PRIVATE src)
@@ -30,6 +30,7 @@ target_link_libraries(core
   continuable
   llhttp
   sqlite_modern_cpp
+  ulid-c
   CONAN_PKG::nlohmann_json
   CONAN_PKG::uvw
   CONAN_PKG::spdlog)

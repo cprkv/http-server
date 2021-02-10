@@ -1,10 +1,13 @@
 #include "core/http-server.hpp"
 #include "core/log.hpp"
 #include "core/db/sqlite.hpp"
+#include "core/ulid.hpp"
 
 struct App {
   core::db::Sqlite db{ { .db_name = "gallery.db" } };
 } g_app;
+
+//-----------------------------------------------------------------------
 
 struct ExampleHandler : public core::HttpRequestHandler {
   static inline core::HttpMethod method = core::HttpMethod::GET;
@@ -14,7 +17,7 @@ struct ExampleHandler : public core::HttpRequestHandler {
     core::g_log->debug("~ExampleHandler");
   }
 
-  auto handle() -> decltype(core::HttpRequestHandler::handle()) override {
+  HandleResult handle() override {
     return g_app.db.with_connection(
                        [](sqlite::database& db) {
                          int result;
@@ -28,11 +31,49 @@ struct ExampleHandler : public core::HttpRequestHandler {
         .then([](int count) {
           core::HttpResponse response{};
           response.status(core::HttpStatusCode::OK)
-              << "tests rows count: " << count << "\r\n";
+              << "tests rows count: " << count << "\r\n"
+              << "some ulid: " << core::UlidGenerator::main().generate().str() << "\r\n";
           return response;
         });
   }
 };
+
+//-----------------------------------------------------------------------
+
+struct FillHandler : public core::HttpRequestHandler {
+  static inline core::HttpMethod method = core::HttpMethod::GET;
+  static inline const char*      path   = "/api/fill";
+
+  ~FillHandler() override = default;
+
+  HandleResult handle() override {
+    return g_app.db.with_connection(
+                       [](sqlite::database& db) {
+                         db << "create table if not exists tests ("
+                               "   _id integer primary key autoincrement not null,"
+                               "   age int,"
+                               "   name text,"
+                               "   weight real"
+                               ");";
+                         db << "insert into tests (age,name,weight) values (?,?,?);"
+                            << 20 << u"bob" << 83.25;
+                         db << "insert into tests (age,name,weight) values (?,?,?);"
+                            << 21 << u"alice" << 56.4;
+                         db << "insert into tests (age,name,weight) values (?,?,?);"
+                            << 22 << u"dungeon master" << 98.0;
+                         db << "insert into tests (age,name,weight) values (?,?,?);"
+                            << 24 << u"stefany" << 44.25;
+                         return nullptr;
+                       })
+        .then([](nullptr_t) {
+          core::HttpResponse response{};
+          response.status(core::HttpStatusCode::Created).with_default_status_message();
+          return response;
+        });
+  }
+};
+
+//-----------------------------------------------------------------------
 
 struct TestPartsHandler : public core::HttpRequestHandler {
   static inline core::HttpMethod method = core::HttpMethod::POST;
@@ -63,7 +104,7 @@ struct TestPartsHandler : public core::HttpRequestHandler {
     return true;
   }
 
-  auto handle() -> decltype(core::HttpRequestHandler::handle()) override {
+  HandleResult handle() override {
     return cti::async([this] {
       core::HttpResponse response{};
       response.status(core::HttpStatusCode::OK)
@@ -76,11 +117,14 @@ struct TestPartsHandler : public core::HttpRequestHandler {
   }
 };
 
+//-----------------------------------------------------------------------
+
 
 int main(int, char**) {
   core::HttpServer server;
   server.add_handler<ExampleHandler>();
   server.add_handler<TestPartsHandler>();
+  server.add_handler<FillHandler>();
   server.listen("127.0.0.1", 5000);
   return core::run_main_loop();
 }

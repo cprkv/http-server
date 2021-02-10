@@ -40,14 +40,16 @@ namespace core {
   //---------------------------------------------------------------
   // base class for users
   struct HttpRequestHandler {
+    using HandleResult = cti::continuable<core::HttpResponse>;
+
     HttpRequest request{};
 
     HttpRequestHandler() = default;
 
     virtual ~HttpRequestHandler();
-    virtual bool                           preprocess() { return true; }
-    virtual cti::continuable<HttpResponse> handle() = 0;
-    void                                   destroy();
+    virtual bool         preprocess() { return true; }
+    virtual HandleResult handle() = 0;
+    void                 destroy();
 
     template <typename... TArgs>
     bool unwrap_url(TArgs&&... args) {

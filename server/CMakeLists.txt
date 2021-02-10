@@ -21,6 +21,7 @@ add_subdirectory(deps/continuable)
 add_subdirectory(deps/function2)
 add_subdirectory(deps/llhttp)
 add_subdirectory(deps/sqlite_modern_cpp)
+add_subdirectory(deps/ulid-c)
 
 add_subdirectory(core)
 add_subdirectory(api)
