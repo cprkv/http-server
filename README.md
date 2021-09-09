@@ -1,7 +1,5 @@
-# веб галерея
+# http-server
 
-Сайтик для галереи с фоточками.  
-На сервере json-api бекенд на c++ с библиотеками uvw, llhttp, spdlog, nlohmann_json, sqlite_modern_cpp, continuable.  
-На фронте react.  
+Библиотека для простого json-api асинхронного бекенда на C++ с библиотеками uvw, llhttp, spdlog, nlohmann_json, sqlite_modern_cpp, continuable.  
 
 **work in progress.**
