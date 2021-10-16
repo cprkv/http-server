@@ -1,7 +1,7 @@
 #pragma once
 #include "http-server/pch.hpp"
 
-namespace core {
+namespace http {
   class Log {
     std::shared_ptr<spdlog::logger> instance_;
 
@@ -11,4 +11,4 @@ namespace core {
   };
 
   extern Log g_log;
-} // namespace core
+} // namespace http

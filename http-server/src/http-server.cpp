@@ -2,7 +2,7 @@
 #include "http-server/log.hpp"
 #include "http-server/utils.hpp"
 
-using namespace core;
+using namespace http;
 
 //---------------------------------------------------------------
 
@@ -169,10 +169,10 @@ void HttpServer::_handle_request(HttpRequest request, ITcpWriter* writer) {
         request_handler->destroy();
         response.write(writer);
       })
-      .fail(core::unwrap_exception_ptr([writer](const std::exception& ex) {
-        core::HttpResponse response{};
+      .fail(http::unwrap_exception_ptr([writer](const std::exception& ex) {
+        http::HttpResponse response{};
         g_log->debug("error while handling request: {}", ex.what());
-        response.status(core::HttpStatusCode::InternalServerError).with_default_status_message();
+        response.status(http::HttpStatusCode::InternalServerError).with_default_status_message();
         response.write(writer);
       }));
 }

@@ -1,8 +1,8 @@
 #include "http-server/error.hpp"
 
-using namespace core;
+using namespace http;
 
-std::string_view core::to_string(ErrorCode code) {
+std::string_view http::to_string(ErrorCode code) {
   switch (code) {
 #define EXPAND_X_ERROR_CODE_ENUM(val) \
   case ErrorCode::val: return #val;

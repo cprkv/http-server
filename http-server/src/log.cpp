@@ -3,7 +3,7 @@
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/async.h>
 
-using namespace core;
+using namespace http;
 
 #if defined(DEBUG)
   #define DEBUG_RELEASE_SWITCH(deb, rel) deb
@@ -11,7 +11,7 @@ using namespace core;
   #define DEBUG_RELEASE_SWITCH(deb, rel) rel
 #endif
 
-Log core::g_log{};
+Log http::g_log{};
 
 Log::Log() noexcept {
   constexpr spdlog::level::level_enum log_level     = DEBUG_RELEASE_SWITCH(spdlog::level::trace, spdlog::level::info);

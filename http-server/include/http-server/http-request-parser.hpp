@@ -2,7 +2,7 @@
 #include "http-server/pch.hpp"
 #include "http-server/http-body-parser.hpp"
 
-namespace core {
+namespace http {
   //---------------------------------------------------------------
 
   using HeadersMap = std::unordered_multimap<std::string, std::string>;
@@ -37,4 +37,4 @@ namespace core {
   };
 
   //---------------------------------------------------------------
-} // namespace core
+} // namespace http

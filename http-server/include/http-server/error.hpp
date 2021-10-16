@@ -1,7 +1,7 @@
 #pragma once
 #include "http-server/pch.hpp"
 
-namespace core {
+namespace http {
   //---------------------------------------------------------------
 
 #define X_ERROR_CODE_ENUM(X) \
@@ -46,4 +46,4 @@ namespace core {
 
     //---------------------------------------------------------------
   };
-} // namespace core
+} // namespace http

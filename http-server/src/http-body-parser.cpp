@@ -1,6 +1,6 @@
 #include "http-server/http-body-parser.hpp"
 
-using namespace core;
+using namespace http;
 
 //---------------------------------------------------------------
 

@@ -1,11 +1,11 @@
 #include "http-server/http-info.hpp"
 #include "http-server/log.hpp"
 
-using namespace core;
+using namespace http;
 
 //---------------------------------------------------------------
 
-const char* core::http_status_code_message(HttpStatusCode code) {
+const char* http::http_status_code_message(HttpStatusCode code) {
   int code_base = static_cast<int>(code);
 
   switch (code_base) {

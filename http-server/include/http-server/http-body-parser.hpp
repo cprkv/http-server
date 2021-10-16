@@ -3,7 +3,7 @@
 
 using json = nlohmann::json;
 
-namespace core {
+namespace http {
   //---------------------------------------------------------------
 
   enum class HttpBodyType {
@@ -41,4 +41,4 @@ namespace core {
   };
 
   //---------------------------------------------------------------
-} // namespace core
+} // namespace http

@@ -11,6 +11,7 @@ set(sources
   include/http-server/log.hpp
   include/http-server/pool.hpp
   include/http-server/pool-worker.hpp
+  include/http-server/tcp-client.hpp
   include/http-server/tcp-server.hpp
   include/http-server/utils.hpp
   include/http-server/functor.hpp
@@ -23,6 +24,7 @@ set(sources
   src/http-request-parser.cpp
   src/http-server.cpp
   src/log.cpp
+  src/tcp-client.cpp
   src/tcp-server.cpp
   src/utils.cpp
   src/ulid.cpp)

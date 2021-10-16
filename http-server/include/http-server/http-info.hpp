@@ -1,7 +1,7 @@
 #pragma once
 #include "http-server/pch.hpp"
 
-namespace core {
+namespace http {
   //---------------------------------------------------------------
 
   enum class HttpStatusCode : int {
@@ -143,4 +143,4 @@ namespace core {
   };
 
   //---------------------------------------------------------------
-} // namespace core
+} // namespace http

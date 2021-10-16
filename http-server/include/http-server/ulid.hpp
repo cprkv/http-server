@@ -1,7 +1,7 @@
 #pragma once
 #include "http-server/pch.hpp"
 
-namespace core {
+namespace http {
   //-----------------------------------------------------------------------
 
   class Ulid {
@@ -42,4 +42,4 @@ namespace core {
   };
 
   //-----------------------------------------------------------------------
-} // namespace core
+} // namespace http

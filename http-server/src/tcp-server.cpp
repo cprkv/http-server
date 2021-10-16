@@ -1,7 +1,7 @@
 #include "http-server/tcp-server.hpp"
 #include "http-server/log.hpp"
 
-using namespace core;
+using namespace http;
 
 //---------------------------------------------------------------
 
@@ -25,6 +25,31 @@ struct TcpWriter : public ITcpWriter {
 
     g_log->debug("tcp_writer: done");
     handle->close();
+  }
+};
+
+struct TcpWriterClient : public ITcpWriter {
+  std::shared_ptr<uvw::TCPHandle> handle;
+  std::string                     data_result;
+
+  explicit TcpWriterClient(std::shared_ptr<uvw::TCPHandle> handle)
+      : handle{ std::move(handle) } {}
+
+  ~TcpWriterClient() override {
+    g_log->debug("~TcpWriterClient");
+  }
+
+  void done() override {
+    data_result = data.str();
+
+    g_log->debug("TcpWriterClient: write {} bytes", data_result.size());
+    handle->write(const_cast<char*>(data_result.c_str()),
+                  static_cast<unsigned int>(data_result.size()));
+
+    // todo: handle->on< ... written >([handle](){ handle->read(); });
+    handle->read();
+
+    g_log->debug("TcpWriterClient: done");
   }
 };
 

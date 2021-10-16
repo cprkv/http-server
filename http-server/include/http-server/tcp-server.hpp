@@ -1,7 +1,7 @@
 #pragma once
 #include "http-server/pch.hpp"
 
-namespace core {
+namespace http {
   //---------------------------------------------------------------
 
   struct ITcpWriter {
@@ -39,4 +39,4 @@ namespace core {
   };
 
   //---------------------------------------------------------------
-} // namespace core
+} // namespace http

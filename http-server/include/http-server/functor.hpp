@@ -1,7 +1,7 @@
 #pragma once
 #include "http-server/pch.hpp"
 
-namespace core {
+namespace http {
   template <typename TReturn, typename... TArguments>
   struct FunctorInfoBase {
     using ReturnType = TReturn;
@@ -27,4 +27,4 @@ namespace core {
   struct UnitFunctor {
     constexpr T operator()(T value) { return value; }
   };
-} // namespace core
+} // namespace http

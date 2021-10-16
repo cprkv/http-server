@@ -1,6 +1,6 @@
 #include "http-server/ulid.hpp"
 
-using namespace core;
+using namespace http;
 
 //-----------------------------------------------------------------------
 

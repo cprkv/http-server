@@ -1,9 +1,9 @@
 #include "http-server/utils.hpp"
 #include "http-server/log.hpp"
 
-using namespace core;
+using namespace http;
 
-void core::next_tick(std::function<void()> func) {
+void http::next_tick(std::function<void()> func) {
   using namespace std::chrono_literals;
   auto timer = uvw::Loop::getDefault()->resource<uvw::TimerHandle>();
   timer->init();
@@ -14,11 +14,11 @@ void core::next_tick(std::function<void()> func) {
   timer->start(0ms, 0ms);
 }
 
-int core::run_main_loop() {
+int http::run_main_loop() {
   return uvw::Loop::getDefault()->run();
 }
 
-std::string core::replace_all(std::string str, std::string_view from, std::string_view to) {
+std::string http::replace_all(std::string str, std::string_view from, std::string_view to) {
   if (from.empty()) {
     return str;
   }
@@ -30,7 +30,7 @@ std::string core::replace_all(std::string str, std::string_view from, std::strin
   return str;
 }
 
-std::function<void(const std::exception_ptr&)> core::unwrap_exception_ptr(
+std::function<void(const std::exception_ptr&)> http::unwrap_exception_ptr(
     std::function<void(const std::exception&)> on_ex) {
   return [on_ex = std::move(on_ex)](const std::exception_ptr& ptr) {
     try {

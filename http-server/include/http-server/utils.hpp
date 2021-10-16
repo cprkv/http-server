@@ -1,7 +1,7 @@
 #pragma once
 #include "http-server/pch.hpp"
 
-namespace core {
+namespace http {
   void        next_tick(std::function<void()> func);
   int         run_main_loop();
   std::string replace_all(std::string str, std::string_view from, std::string_view to);
@@ -92,4 +92,4 @@ namespace core {
       return true;
     }
   } // namespace url
-} // namespace core
+} // namespace http

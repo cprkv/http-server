@@ -3,7 +3,7 @@
 #include "http-server/error.hpp"
 #include "http-server/pool.hpp"
 
-namespace core {
+namespace http {
   //---------------------------------------------------------------
 
   template <typename TResource>
@@ -84,4 +84,4 @@ namespace core {
   };
 
   //---------------------------------------------------------------
-} // namespace core
+} // namespace http

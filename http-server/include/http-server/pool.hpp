@@ -2,7 +2,7 @@
 #include "http-server/pch.hpp"
 #include "http-server/log.hpp"
 
-namespace core {
+namespace http {
   //---------------------------------------------------------------
 
   template <typename TResource>
@@ -62,4 +62,4 @@ namespace core {
   };
 
   //---------------------------------------------------------------
-} // namespace core
+} // namespace http

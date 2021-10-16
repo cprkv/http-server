@@ -2,7 +2,7 @@
 #include "http-server/log.hpp"
 #include "http-server/http-info.hpp"
 
-using namespace core;
+using namespace http;
 
 static llhttp_settings_t get_http_parser_settings() noexcept;
 
@@ -60,9 +60,9 @@ static llhttp_settings_t get_http_parser_settings() noexcept {
       g_log->debug("[llhttp] method: {}", method_name);
 
       if (strcmp(method_name, "GET") == 0) {
-        reader->request_.method = core::HttpMethod::GET;
+        reader->request_.method = http::HttpMethod::GET;
       } else if (strcmp(method_name, "POST") == 0) {
-        reader->request_.method = core::HttpMethod::POST;
+        reader->request_.method = http::HttpMethod::POST;
       } else {
         g_log->error("[llhttp] unknown method: {}", method_name);
         return -1;

@@ -7,7 +7,7 @@
 
 struct HttpTcpReader;
 
-namespace core {
+namespace http {
   //---------------------------------------------------------------
   // response builder
   struct HttpResponse {
@@ -37,7 +37,7 @@ namespace core {
   //---------------------------------------------------------------
   // base class for users
   struct HttpRequestHandler {
-    using HandleResult = cti::continuable<core::HttpResponse>;
+    using HandleResult = cti::continuable<http::HttpResponse>;
 
     HttpRequest request{};
 
@@ -110,4 +110,4 @@ namespace core {
   };
 
   //---------------------------------------------------------------
-} // namespace core
+} // namespace http

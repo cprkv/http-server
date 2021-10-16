@@ -2,19 +2,20 @@
 #include "http-server/log.hpp"
 #include "http-server/db/sqlite.hpp"
 #include "http-server/ulid.hpp"
+#include "http-server/tcp-client.hpp"
 
 struct App {
-  core::db::Sqlite db{ { .db_name = "gallery.db" } };
+  http::db::Sqlite db{ { .db_name = "gallery.db" } };
 } g_app;
 
 //-----------------------------------------------------------------------
 
-struct ExampleHandler : public core::HttpRequestHandler {
-  static inline core::HttpMethod method = core::HttpMethod::GET;
+struct ExampleHandler : public http::HttpRequestHandler {
+  static inline http::HttpMethod method = http::HttpMethod::GET;
   static inline const char*      path   = "/api/example";
 
   ~ExampleHandler() override {
-    core::g_log->debug("~ExampleHandler");
+    http::g_log->debug("~ExampleHandler");
   }
 
   HandleResult handle() override {
@@ -30,10 +31,10 @@ struct ExampleHandler : public core::HttpRequestHandler {
               return result;
             })
         .then([](int count) {
-          core::HttpResponse response{};
-          response.status(core::HttpStatusCode::OK)
+          http::HttpResponse response{};
+          response.status(http::HttpStatusCode::OK)
               << "tests rows count: " << count << "\r\n"
-              << "some ulid: " << core::UlidGenerator::main().generate().str() << "\r\n";
+              << "some ulid: " << http::UlidGenerator::main().generate().str() << "\r\n";
           return response;
         });
   }
@@ -41,8 +42,8 @@ struct ExampleHandler : public core::HttpRequestHandler {
 
 //-----------------------------------------------------------------------
 
-struct FillHandler : public core::HttpRequestHandler {
-  static inline core::HttpMethod method = core::HttpMethod::GET;
+struct FillHandler : public http::HttpRequestHandler {
+  static inline http::HttpMethod method = http::HttpMethod::GET;
   static inline const char*      path   = "/api/fill";
 
   ~FillHandler() override = default;
@@ -68,8 +69,8 @@ struct FillHandler : public core::HttpRequestHandler {
               return nullptr;
             })
         .then([](nullptr_t) {
-          core::HttpResponse response{};
-          response.status(core::HttpStatusCode::Created).with_default_status_message();
+          http::HttpResponse response{};
+          response.status(http::HttpStatusCode::Created).with_default_status_message();
           return response;
         });
   }
@@ -77,8 +78,8 @@ struct FillHandler : public core::HttpRequestHandler {
 
 //-----------------------------------------------------------------------
 
-struct TestPartsHandler : public core::HttpRequestHandler {
-  static inline core::HttpMethod method = core::HttpMethod::POST;
+struct TestPartsHandler : public http::HttpRequestHandler {
+  static inline http::HttpMethod method = http::HttpMethod::POST;
   static inline const char*      path   = "/api/part/{int}/{string}";
 
   int         part{ 0 };
@@ -95,11 +96,11 @@ struct TestPartsHandler : public core::HttpRequestHandler {
     if (!request.body) {
       return false;
     }
-    if (request.body->type() != core::HttpBodyType::Json) {
+    if (request.body->type() != http::HttpBodyType::Json) {
       return false;
     }
 
-    auto body = dynamic_cast<core::HttpBodyJson*>(request.body.get());
+    auto body = dynamic_cast<http::HttpBodyJson*>(request.body.get());
     password  = body->object["password"].get<std::string>();
     username  = body->object["username"].get<std::string>();
 
@@ -108,8 +109,8 @@ struct TestPartsHandler : public core::HttpRequestHandler {
 
   HandleResult handle() override {
     return cti::async([this] {
-      core::HttpResponse response{};
-      response.status(core::HttpStatusCode::OK)
+      http::HttpResponse response{};
+      response.status(http::HttpStatusCode::OK)
           << "hello from parts handler!\r\n"
           << "current part: " << part << ", name: " << name << "\r\n"
           << "password: '" << password << "'\r\n"
@@ -121,12 +122,32 @@ struct TestPartsHandler : public core::HttpRequestHandler {
 
 //-----------------------------------------------------------------------
 
+struct ExampleTcpClientUser : public http::ITcpClientUser {
+  ~ExampleTcpClientUser() override {
+    http::g_log->info("~ExampleTcpClientUser");
+  }
+
+  void on_data(char* data, size_t size) override {
+    http::g_log->info("read_callback {}", size);
+
+    const char* msg = "meow!\r\n";
+    client_->write(const_cast<char*>(msg), strlen(msg));
+  }
+
+  void on_hello() override {
+    const char* msg = "hello!\r\n";
+    client_->write(const_cast<char*>(msg), strlen(msg));
+  }
+};
 
 int main(int, char**) {
-  core::HttpServer server;
+  http::TcpClient client{ std::make_unique<ExampleTcpClientUser>() };
+  client.connect("127.0.0.1", 1222u);
+
+  http::HttpServer server;
   server.add_handler<ExampleHandler>();
   server.add_handler<TestPartsHandler>();
   server.add_handler<FillHandler>();
   server.listen("127.0.0.1", 5000);
-  return core::run_main_loop();
+  return http::run_main_loop();
 }

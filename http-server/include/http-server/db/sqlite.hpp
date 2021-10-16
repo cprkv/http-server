@@ -3,7 +3,7 @@
 #include "http-server/functor.hpp"
 #include <sqlite_modern_cpp.h>
 
-namespace core::db {
+namespace http::db {
   //---------------------------------------------------------------
 
   struct SqliteSettings {
@@ -41,7 +41,7 @@ namespace core::db {
 
   public:
     explicit Sqlite(SqliteSettings settings)
-        : pool_worker_{ std::make_unique<core::db::SqlitePool>(std::move(settings)) } {}
+        : pool_worker_{ std::make_unique<http::db::SqlitePool>(std::move(settings)) } {}
 
     template <typename TAction>
     auto with_connection(TAction&& action) {
@@ -51,4 +51,4 @@ namespace core::db {
   };
 
   //---------------------------------------------------------------
-} // namespace core::db
+} // namespace http::db
