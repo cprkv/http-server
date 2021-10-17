@@ -1,0 +1,15 @@
+{
+  49: "Invalid MsgPack - packet length",
+  82: {
+    0: [
+      {
+        0: "ClientError",
+        1: "\/build\/tarantool-2.8.2.0\/src\/box\/iproto.cc",
+        2: 870,
+        3: "Invalid MsgPack - packet length",
+        4: 0,
+        5: 20
+      }
+    ]
+  }
+}

@@ -2,6 +2,10 @@ cmake_minimum_required(VERSION 3.10)
 project(http-server)
 
 set(sources
+  include/http-server/db/tarantool/msgpack-ext.hpp
+  include/http-server/db/tarantool/enums.hpp
+  include/http-server/db/tarantool/types.hpp
+  include/http-server/db/tarantool/client.hpp
   include/http-server/db/sqlite.hpp
   include/http-server/error.hpp
   include/http-server/http-body-parser.hpp
@@ -18,6 +22,7 @@ set(sources
   include/http-server/ulid.hpp
   include/http-server/pch.hpp
 
+  src/db/tarantool.cpp
   src/error.cpp
   src/http-body-parser.cpp
   src/http-info.cpp
