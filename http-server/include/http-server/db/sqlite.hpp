@@ -21,17 +21,17 @@ namespace http::db {
   class SqlitePool : public Pool<sqlite::database> {
     SqliteSettings settings_;
 
-  protected:
-    sqlite::database* create_resource() override {
-      return new sqlite::database(settings_.db_name, settings_.config);
-    }
-
   public:
     explicit SqlitePool(SqliteSettings settings)
         : settings_{ std::move(settings) }
         , Pool<sqlite::database>{ settings.max_pool_size } {}
 
     ~SqlitePool() override = default;
+
+  protected:
+    sqlite::database* create_resource() override {
+      return new sqlite::database(settings_.db_name, settings_.config);
+    }
   };
 
   //-----------------------------------------------------------------------

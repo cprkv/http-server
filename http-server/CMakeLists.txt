@@ -35,6 +35,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
   sqlite_modern_cpp
   llhttp
   ulid-c
+  CONAN_PKG::msgpack
   CONAN_PKG::continuable
   CONAN_PKG::nlohmann_json
   CONAN_PKG::uvw

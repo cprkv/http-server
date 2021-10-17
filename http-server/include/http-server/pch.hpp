@@ -14,6 +14,7 @@
 #include <llhttp.h>
 #include <uvw.hpp>
 #include <ulid.h>
+#include <msgpack.hpp>
 
 #ifdef _MSC_VER
   #pragma warning(pop)

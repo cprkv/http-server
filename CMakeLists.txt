@@ -15,6 +15,7 @@ conan_cmake_run(
     spdlog/1.9.2
     sqlite3/3.36.0
     continuable/4.1.0
+    msgpack/3.3.0
   BASIC_SETUP CMAKE_TARGETS
   BUILD missing)
 

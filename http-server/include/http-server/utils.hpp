@@ -1,6 +1,36 @@
 #pragma once
 #include "http-server/pch.hpp"
 
+#define mEnumUnwrap(Name, value) Name = value,
+
+#define mSimpleEnumUnwrap(Name) Name,
+
+#define mEnumToStringCase(Name, ...) \
+  case decltype(v)::Name:              \
+    return #Name;
+
+#define mDeclareEnum(EnumName, EnumXMacro)                         \
+  enum EnumName { EnumXMacro(mEnumUnwrap) };                       \
+                                                                   \
+  inline static constexpr std::string_view to_string(EnumName v) { \
+    switch (v) {                                                   \
+      EnumXMacro(mEnumToStringCase);                               \
+      default:                                                     \
+        return "<unknown>";                                        \
+    }                                                              \
+  }
+
+#define mDeclareSimpleEnum(EnumName, EnumXMacro)                   \
+  enum EnumName { EnumXMacro(mSimpleEnumUnwrap) };                 \
+                                                                   \
+  inline static constexpr std::string_view to_string(EnumName v) { \
+    switch (v) {                                                   \
+      EnumXMacro(mEnumToStringCase);                               \
+      default:                                                     \
+        return "<unknown>";                                        \
+    }                                                              \
+  }
+
 namespace http {
   void        next_tick(std::function<void()> func);
   int         run_main_loop();
